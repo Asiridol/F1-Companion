@@ -1,13 +1,14 @@
 package com.asiri.f1companion;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.asiri.f1companion.Services.InitialLoaderService;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -18,14 +19,14 @@ public class HomeActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        AlertDialog dialog=new ProgressDialog(this);
+        dialog.setTitle("Loading ..." );
+        dialog.setMessage("Loading ");
+        dialog.setCancelable(false);
+        dialog.show();
+
+        InitialLoaderService loader=new InitialLoaderService(dialog,getBaseContext());
+        loader.loadDrivers();
     }
 
     @Override
