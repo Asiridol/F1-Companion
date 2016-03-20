@@ -122,6 +122,7 @@ public class Driver extends RealmObject
         this.givenName=driver.getGivenName();
         this.url=driver.getUrl();
         this.nationality=driver.getNationality();
+        this.permanentNumber=driver.getPermanentNumber();
     }
 
     @Override

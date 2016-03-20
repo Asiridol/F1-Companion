@@ -1,28 +1,30 @@
-package com.asiri.f1companion.UI;
+package com.asiri.f1companion.UI.Fragments;
 
-import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ViewFlipper;
 
 import com.asiri.f1companion.Models.Constructor;
 import com.asiri.f1companion.Models.Leaderboard;
+import com.asiri.f1companion.Models.Race;
 import com.asiri.f1companion.R;
 
-import org.w3c.dom.Text;
-
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -43,6 +45,14 @@ public class HomeFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+
+    TextView tNextRace;
+    TextView tDaysToRace;
+    ViewFlipper flipper;
+
+    Date raceDate;
+    Date today;
+    final Handler h=new Handler();
 
     public HomeFragment() {
         // Required empty public constructor
@@ -68,6 +78,11 @@ public class HomeFragment extends Fragment {
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
+
+        tNextRace=(TextView)v.findViewById(R.id.homeRaceName);
+        tDaysToRace=(TextView)v.findViewById(R.id.daysToRace);
+
+        flipper=(ViewFlipper)v.findViewById(R.id.flipper);
         /*
         list=(ListView)v.findViewById(R.id.Home_LeaderboardList);
         list.setNestedScrollingEnabled(true);*/
@@ -84,6 +99,8 @@ public class HomeFragment extends Fragment {
         // specify an adapter (see also next example)
         mAdapter = new LeaderBoardAdapter(getActivity(),leaders);
         mRecyclerView.setAdapter(mAdapter);
+
+        getNextRace();
     }
 
     @Override
@@ -108,18 +125,90 @@ public class HomeFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
+
     public void getNextRace()
     {
+        today=new Date();
 
+        DateFormat formatter=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+        RealmResults<Race> races=realm.allObjects(Race.class);
+
+        boolean found=false;
+
+        for (Race r:races) {
+            try {
+                today=(Date)formatter.parse("2015-05-11 12:00:00");
+                raceDate = (Date) formatter.parse(r.getDate() + " " + r.getTime());
+
+                if(raceDate.after(today))
+                {
+                    tNextRace.setText(r.getRaceName() + " - " + r.getCircuitName() + " in " + r.getCountry() + " on " + r.getDate());
+                    found=true;
+                    break;
+                }
+            }
+            catch(ParseException ex)
+            {
+                ex.printStackTrace();
+            }
+        }
+
+        if(found)
+        {
+            if(flipper.getDisplayedChild()==1)
+            {
+                flipper.showNext();
+            }
+
+            tDaysToRace.setText(calculateTime());
+
+            h.postDelayed(new Runnable() {
+                private long time = 0;
+
+                @Override
+                public void run() {
+                    tDaysToRace.setText(calculateTime());
+                    //time += 1000;
+                    h.postDelayed(this, 60000);
+                }
+            }, 60000); // 1 second delay (takes millis)
+        }
+        else
+        {
+            if(flipper.getDisplayedChild()==0)
+            {
+                flipper.showNext();
+            }
+        }
+    }
+
+    public String calculateTime()
+    {
+        today.setTime(today.getTime() +60000);
+
+        long daysLeft=(long)(raceDate.getTime()-today.getTime())/(1000*60*60*24);
+        long daysLeftremainder=(long)(raceDate.getTime()-today.getTime())%(1000*60*60*24);
+        long hoursLeft=(long)daysLeftremainder/3600000;
+        long hoursLeftremainder=(long)daysLeftremainder%3600000;
+        long minutesLeft=(long)hoursLeftremainder/60000;
+        long minutesLeftremainder=(long)hoursLeftremainder%60000;
+
+        return daysLeft + " : " + hoursLeft + " : " + minutesLeft;
     }
 }
 
-class LeaderBoardAdapter extends RecyclerView.Adapter<LeaderBoardAdapter.ViewHolder> {
+class LeaderBoardAdapter extends RecyclerView.Adapter<LeaderBoardAdapter.ViewHolder> implements View.OnClickListener{
     List<Leaderboard> mDataset;
     Context context;
 
     static int HEADER_TYPE=0;
     static int LIST_TYPE=1;
+
+    @Override
+    public void onClick(View view) {
+        Toast.makeText(context,"item : " + ((ViewHolder)view.getTag()).id,Toast.LENGTH_SHORT).show();
+    }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tPos;
@@ -128,6 +217,7 @@ class LeaderBoardAdapter extends RecyclerView.Adapter<LeaderBoardAdapter.ViewHol
         TextView tWins;
         TextView tPoints;
         TextView tHeader;
+        String id;
 
         public ViewHolder(View v) {
             super(v);
@@ -138,6 +228,7 @@ class LeaderBoardAdapter extends RecyclerView.Adapter<LeaderBoardAdapter.ViewHol
             tTeam=(TextView)v.findViewById(R.id.tTeam);
             tPoints=(TextView)v.findViewById(R.id.tPoints);
             tHeader=(TextView)v.findViewById(R.id.leaderHeader);
+            v.setTag(this);
         }
     }
 
@@ -152,9 +243,11 @@ class LeaderBoardAdapter extends RecyclerView.Adapter<LeaderBoardAdapter.ViewHol
 
         View v;
             v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.leaderboardrow, parent, false);
+                    .inflate(R.layout.row_leaderboard, parent, false);
 
         ViewHolder vh = new ViewHolder(v);
+
+        v.setOnClickListener(this);
         return vh;
     }
 
@@ -163,14 +256,16 @@ class LeaderBoardAdapter extends RecyclerView.Adapter<LeaderBoardAdapter.ViewHol
         if(position!=0) {
             holder.tPos.setText(mDataset.get(position-1).getPosition());
             holder.tName.setText(mDataset.get(position-1).getDriver().getGivenName() + " " + mDataset.get(position-1).getDriver().getFamilyName());
-            holder.tWins.setText(mDataset.get(position-1).getWins());
-            holder.tPoints.setText(mDataset.get(position-1).getPoints());
+            holder.tWins.setText(mDataset.get(position-1).getWins() + " - wins");
+
+            holder.tPoints.setText(mDataset.get(position-1).getPoints() + " - pts");
 
             Constructor constructor;
             constructor = Realm.getInstance(context).where(Constructor.class).equalTo("constructorId", mDataset.get(position-1).getDriver().getConstructorId()).findFirst();
             holder.tTeam.setText(constructor.getName());
 
             holder.tHeader.setVisibility(View.GONE);
+            holder.id=mDataset.get(position-1).getDriver().getDriverId();
         }
         else
         {

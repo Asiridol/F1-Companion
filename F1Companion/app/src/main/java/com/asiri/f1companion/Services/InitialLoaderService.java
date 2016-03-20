@@ -125,7 +125,9 @@ public class InitialLoaderService {
                     Constructor constructor=realm.createObject(Constructor.class);
                     constructor.setObject(response.body().getConstructors()[i]);
                     RealmResults<Driver> drivers=realm.where(Driver.class).equalTo("constructorId",constructor.getConstructorId()).findAll();
-                    constructor.getDrivers().add(drivers.first());
+                    for (Driver d:drivers) {
+                        constructor.getDrivers().add(d);
+                    }
                 }
 
                 realm.commitTransaction();

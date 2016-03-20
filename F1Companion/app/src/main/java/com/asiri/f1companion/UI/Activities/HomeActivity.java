@@ -1,4 +1,4 @@
-package com.asiri.f1companion.UI;
+package com.asiri.f1companion.UI.Activities;
 
 import android.app.ProgressDialog;
 import android.net.Uri;
@@ -11,25 +11,32 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.TableLayout;
+import android.view.View;
+import android.view.WindowManager;
 
 import com.asiri.f1companion.R;
 import com.asiri.f1companion.Services.InitialLoaderService;
+import com.asiri.f1companion.UI.Animation.DepthPageTransformer;
+import com.asiri.f1companion.UI.Fragments.DriversFragment;
+import com.asiri.f1companion.UI.Fragments.HomeFragment;
+import com.asiri.f1companion.UI.Fragments.NewsFragment;
 
-public class HomeActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener {
+public class HomeActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener, DriversFragment.OnFragmentInteractionListener, NewsFragment.OnFragmentInteractionListener {
 
     Toolbar toolbar;
     TabLayout tablayout;
     ViewPager pager;
     ViewPagerAdapter adapter;
 
-    CharSequence[] titles={"Home","Home2","Home3","Home4"};
+    CharSequence[] titles={"Home","Drivers","News","Home4"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_home);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -41,7 +48,7 @@ public class HomeActivity extends AppCompatActivity implements HomeFragment.OnFr
         dialog.setTitle("Loading ...");
         dialog.setMessage("Loading ");
         dialog.setCancelable(false);
-     //  dialog.show();
+       // dialog.show();
 
         InitialLoaderService loader=new InitialLoaderService(dialog,getBaseContext());
         //loader.loadDrivers();
@@ -54,6 +61,8 @@ public class HomeActivity extends AppCompatActivity implements HomeFragment.OnFr
 
         adapter=new ViewPagerAdapter(getSupportFragmentManager(),titles,titles.length);
         pager.setAdapter(adapter);
+        pager.setPageTransformer(true, new DepthPageTransformer());
+        pager.clearAnimation();
         tablayout.setupWithViewPager(pager);
     }
 
@@ -89,12 +98,12 @@ class ViewPagerAdapter extends FragmentStatePagerAdapter {
         }
         else if(position==1)
         {
-            Fragment tab2=new HomeFragment();
+            Fragment tab2= new DriversFragment();
             return tab2;
         }
         else if(position==2)
         {
-            Fragment tab3=new HomeFragment();
+            Fragment tab3=new NewsFragment();
             return tab3;
         }
         else
