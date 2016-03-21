@@ -11,6 +11,7 @@ import com.asiri.f1companion.Services.Interfaces.Fan1ServerInterface;
 import com.asiri.f1companion.Services.Models.ConstructorsModel;
 import com.asiri.f1companion.Services.Models.DriversModel;
 import com.asiri.f1companion.Services.Models.RacesModel;
+import com.asiri.f1companion.UI.Activities.SplashActivity;
 
 import java.util.concurrent.TimeUnit;
 
@@ -31,7 +32,7 @@ public class InitialLoaderService {
 
     final OkHttpClient client=new OkHttpClient.Builder()
             .readTimeout(60, TimeUnit.SECONDS)
-            .connectTimeout(60,TimeUnit.SECONDS)
+            .connectTimeout(60, TimeUnit.SECONDS)
             .build();
 
     final Retrofit adapter = new Retrofit.Builder()
@@ -44,15 +45,15 @@ public class InitialLoaderService {
 
     final Realm realm;
 
-    final AlertDialog dialog;
     final Context context;
+    final SplashActivity activity;
 
-    public InitialLoaderService(AlertDialog dialog,Context c)
+    public InitialLoaderService(SplashActivity activity)
     {
         serviceInstance = adapter.create(Fan1ServerInterface.class);
-        realm=Realm.getInstance(c);
-        this.dialog=dialog;
-        this.context=c;
+        this.activity=activity;
+        context=activity.getBaseContext();
+        realm=Realm.getInstance(context);
     }
 
     public void clearRealm()
@@ -66,7 +67,7 @@ public class InitialLoaderService {
 
     public void loadDrivers(){
 
-        dialog.setMessage("Loading Drivers");
+        activity.mDialog.setMessage("Loading Drivers");
         clearRealm();
 
         Call<DriversModel> call=serviceInstance.getAllDriversAsync();
@@ -109,7 +110,7 @@ public class InitialLoaderService {
 
     public void loadConstructors()
     {
-        dialog.setMessage("Loading Constructors");
+        activity.mDialog.setMessage("Loading Constructors");
 
         Call<ConstructorsModel> call=serviceInstance.getAllConstructorsAsync();
         call.enqueue(new Callback<ConstructorsModel>()
@@ -156,7 +157,7 @@ public class InitialLoaderService {
 
     public void loadRaces()
     {
-        dialog.setMessage("Loading Race Schedule");
+        activity.mDialog.setMessage("Loading Race Schedule");
 
         Call<RacesModel> call=serviceInstance.getAllRacesScheduledAsync();
         call.enqueue(new Callback<RacesModel>()
@@ -164,7 +165,7 @@ public class InitialLoaderService {
 
             @Override
             public void onResponse(Call<RacesModel> call, Response<RacesModel> response) {
-                dialog.dismiss();
+                activity.mDialog.dismiss();
 
                 realm.beginTransaction();
 
@@ -178,7 +179,9 @@ public class InitialLoaderService {
 
                 checkRealm();
 
-                ExtendedDetailsService ex=new ExtendedDetailsService(dialog,context);
+                activity.mDialog.show();
+
+                ExtendedDetailsService ex=new ExtendedDetailsService(activity);
                 ex.loadLeaderboard();
             }
 

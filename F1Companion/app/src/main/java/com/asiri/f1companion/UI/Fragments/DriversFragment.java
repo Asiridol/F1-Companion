@@ -22,6 +22,8 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import io.realm.Realm;
 
 /**
@@ -34,11 +36,11 @@ import io.realm.Realm;
  */
 public class DriversFragment extends Fragment{
 
+    @Bind(R.id.driversList) ListView list;
+
     private OnFragmentInteractionListener mListener;
     ArrayList<DriverListService.RowModel> data;
     Realm realm;
-
-    ListView list;
 
     public DriversFragment() {
         // Required empty public constructor
@@ -54,10 +56,7 @@ public class DriversFragment extends Fragment{
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v=inflater.inflate(R.layout.fragment_drivers_layout, container, false);
-
-        list=(ListView)v.findViewById(R.id.driversList);
-        list.setDrawSelectorOnTop(true);
-        list.setClickable(true);
+        ButterKnife.bind(this, v);
         return v;
     }
 
@@ -119,13 +118,8 @@ class DriverListAdapter extends ArrayAdapter implements View.OnClickListener
         final ViewHolder holder;
         if(view==null)
         {
-            holder=new ViewHolder();
             view=inflater.inflate(R.layout.row_driver,viewGroup,false);
-            holder.flipper=(ViewFlipper)view.findViewById(R.id.flipperDriver);
-            holder.tDriver=(TextView)view.findViewById(R.id.tDriver);
-            holder.tCode=(TextView)view.findViewById(R.id.tCode);
-            holder.tNumber=(TextView)view.findViewById(R.id.tNumber);
-            holder.tTeam=(TextView)view.findViewById(R.id.team);
+            holder=new ViewHolder(view);
             view.setTag(holder);
         }
         else
@@ -169,12 +163,17 @@ class DriverListAdapter extends ArrayAdapter implements View.OnClickListener
 
     static class ViewHolder
     {
-        TextView tDriver;
-        TextView tCode;
-        TextView tNumber;
-        TextView tTeam;
-        ViewFlipper flipper;
+        @Bind(R.id.tDriver)TextView tDriver;
+        @Bind(R.id.tCode)TextView tCode;
+        @Bind(R.id.tNumber)TextView tNumber;
+        @Bind(R.id.tTeam)TextView tTeam;
+        @Bind(R.id.flipperDriver)ViewFlipper flipper;
         String driverId;
+
+        ViewHolder(View view)
+        {
+            ButterKnife.bind(this,view);
+        }
     }
 }
 

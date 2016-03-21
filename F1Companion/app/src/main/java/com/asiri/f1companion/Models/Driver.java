@@ -21,6 +21,7 @@ public class Driver extends RealmObject
     private String constructorId;
     private String url;
     private String permanentNumber;
+    private byte[] driverImage;
 
     public String getDateOfBirth ()
     {
@@ -110,6 +111,14 @@ public class Driver extends RealmObject
     public void setPermanentNumber (String permanentNumber)
     {
         this.permanentNumber = permanentNumber;
+    }
+
+    public byte[] getDriverImage() {
+        return driverImage;
+    }
+
+    public void setDriverImage(byte[] driverImage) {
+        this.driverImage = driverImage;
     }
 
     public void setObject(DriversModel.Driver driver)

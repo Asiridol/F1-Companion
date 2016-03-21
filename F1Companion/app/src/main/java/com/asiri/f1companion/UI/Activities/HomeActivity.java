@@ -20,15 +20,19 @@ import com.asiri.f1companion.UI.Animation.DepthPageTransformer;
 import com.asiri.f1companion.UI.Fragments.DriversFragment;
 import com.asiri.f1companion.UI.Fragments.HomeFragment;
 import com.asiri.f1companion.UI.Fragments.NewsFragment;
+import com.asiri.f1companion.UI.Fragments.RacesFragment;
 
-public class HomeActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener, DriversFragment.OnFragmentInteractionListener, NewsFragment.OnFragmentInteractionListener {
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
-    Toolbar toolbar;
-    TabLayout tablayout;
-    ViewPager pager;
+public class HomeActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener, DriversFragment.OnFragmentInteractionListener, NewsFragment.OnFragmentInteractionListener,RacesFragment.OnFragmentInteractionListener {
+
+    @Bind(R.id.toolbar) Toolbar toolbar;
+    @Bind(R.id.tab_layout)TabLayout tablayout;
+    @Bind(R.id.pager)ViewPager pager;
     ViewPagerAdapter adapter;
 
-    CharSequence[] titles={"Home","Drivers","News","Home4"};
+    CharSequence[] titles={"Home","Drivers","News","Races"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,31 +42,26 @@ public class HomeActivity extends AppCompatActivity implements HomeFragment.OnFr
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activity_home);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        toolbar.setTitle("Fan1 Companion");
+        ButterKnife.bind(this);
 
         setupUI();
+    }
+
+    public void setupUI()
+    {
+        setSupportActionBar(toolbar);
+        toolbar.setTitle("Fan1 Companion");
 
         AlertDialog dialog=new ProgressDialog(this);
         dialog.setTitle("Loading ...");
         dialog.setMessage("Loading ");
         dialog.setCancelable(false);
-       // dialog.show();
-
-        InitialLoaderService loader=new InitialLoaderService(dialog,getBaseContext());
-        //loader.loadDrivers();
-    }
-
-    public void setupUI()
-    {
-        pager=(ViewPager)findViewById(R.id.pager);
-        tablayout=(TabLayout)findViewById(R.id.tab_layout);
-
+        //dialog.show();
         adapter=new ViewPagerAdapter(getSupportFragmentManager(),titles,titles.length);
         pager.setAdapter(adapter);
         pager.setPageTransformer(true, new DepthPageTransformer());
         pager.clearAnimation();
+        pager.setOffscreenPageLimit(3);
         tablayout.setupWithViewPager(pager);
     }
 
@@ -108,7 +107,7 @@ class ViewPagerAdapter extends FragmentStatePagerAdapter {
         }
         else
         {
-            Fragment tab4=new HomeFragment();
+            Fragment tab4=new RacesFragment();
             return tab4;
         }
     }

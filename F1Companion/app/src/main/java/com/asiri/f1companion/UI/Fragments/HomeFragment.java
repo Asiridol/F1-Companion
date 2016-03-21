@@ -18,6 +18,8 @@ import com.asiri.f1companion.Models.Constructor;
 import com.asiri.f1companion.Models.Leaderboard;
 import com.asiri.f1companion.Models.Race;
 import com.asiri.f1companion.R;
+import com.asiri.f1companion.Services.ExtendedDetailsService;
+import com.yalantis.phoenix.PullToRefreshView;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -26,6 +28,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
@@ -38,21 +42,24 @@ import io.realm.RealmResults;
  * create an instance of this fragment.
  */
 public class HomeFragment extends Fragment {
+    @Bind(R.id.pull_to_refresh_leaderboard) PullToRefreshView mPullToRefreshView;
+    @Bind(R.id.leader_recycler) RecyclerView mRecyclerView;
+    @Bind(R.id.homeRaceName)TextView tNextRace;
+    @Bind(R.id.daysToRace)TextView tDaysToRace;
+    @Bind(R.id.flipper)ViewFlipper flipper;
+
     private OnFragmentInteractionListener mListener;
     List<Leaderboard> leaders;
     Realm realm;
 
-    private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-
-    TextView tNextRace;
-    TextView tDaysToRace;
-    ViewFlipper flipper;
 
     Date raceDate;
     Date today;
     final Handler h=new Handler();
+
+    Context context;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -69,8 +76,16 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View v=inflater.inflate(R.layout.fragment_home_layout, container, false);
 
-        mRecyclerView = (RecyclerView) v.findViewById(R.id.my_recycler_view);
+        ButterKnife.bind(this,v);
 
+        context=getActivity().getBaseContext();
+        return v;
+    }
+
+    @Override
+    public void onStart()
+    {
+        super.onStart();
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
@@ -79,20 +94,6 @@ public class HomeFragment extends Fragment {
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        tNextRace=(TextView)v.findViewById(R.id.homeRaceName);
-        tDaysToRace=(TextView)v.findViewById(R.id.daysToRace);
-
-        flipper=(ViewFlipper)v.findViewById(R.id.flipper);
-        /*
-        list=(ListView)v.findViewById(R.id.Home_LeaderboardList);
-        list.setNestedScrollingEnabled(true);*/
-        return v;
-    }
-
-    @Override
-    public void onStart()
-    {
-        super.onStart();
         realm=Realm.getInstance(this.getActivity().getBaseContext());
         leaders=realm.where(Leaderboard.class).findAll();
         //leaders.add(0,new Leaderboard());
@@ -101,6 +102,21 @@ public class HomeFragment extends Fragment {
         mRecyclerView.setAdapter(mAdapter);
 
         getNextRace();
+
+        mPullToRefreshView.setOnRefreshListener(new PullToRefreshView.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mPullToRefreshView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        leaders=null;
+                        mPullToRefreshView.setRefreshing(false);
+                        new ExtendedDetailsService(context).updateLeaderboard();
+                        mAdapter.notifyDataSetChanged();
+                    }
+                }, 3000);
+            }
+        });
     }
 
     @Override
@@ -138,7 +154,7 @@ public class HomeFragment extends Fragment {
 
         for (Race r:races) {
             try {
-                today=(Date)formatter.parse("2015-05-11 12:00:00");
+                //today=(Date)formatter.parse("2015-05-11 12:00:00");
                 raceDate = (Date) formatter.parse(r.getDate() + " " + r.getTime());
 
                 if(raceDate.after(today))
@@ -211,23 +227,17 @@ class LeaderBoardAdapter extends RecyclerView.Adapter<LeaderBoardAdapter.ViewHol
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tPos;
-        TextView tName;
-        TextView tTeam;
-        TextView tWins;
-        TextView tPoints;
-        TextView tHeader;
+        @Bind(R.id.tPos)TextView tPos;
+        @Bind(R.id.tDriver)TextView tName;
+        @Bind(R.id.tTeam)TextView tTeam;
+        @Bind(R.id.tWins)TextView tWins;
+        @Bind(R.id.tPoints)TextView tPoints;
+        @Bind(R.id.leaderHeader)TextView tHeader;
         String id;
 
         public ViewHolder(View v) {
             super(v);
-
-            tPos=(TextView)v.findViewById(R.id.tPos);
-            tName=(TextView)v.findViewById(R.id.tDriver);
-            tWins=(TextView)v.findViewById(R.id.tWins);
-            tTeam=(TextView)v.findViewById(R.id.tTeam);
-            tPoints=(TextView)v.findViewById(R.id.tPoints);
-            tHeader=(TextView)v.findViewById(R.id.leaderHeader);
+            ButterKnife.bind(this,v);
             v.setTag(this);
         }
     }

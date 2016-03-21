@@ -10,6 +10,7 @@ import com.asiri.f1companion.Models.Leaderboard;
 import com.asiri.f1companion.Services.Interfaces.Fan1ServerInterface;
 import com.asiri.f1companion.Services.Models.ConstructorsModel;
 import com.asiri.f1companion.Services.Models.LeaderboardsModel;
+import com.asiri.f1companion.UI.Activities.SplashActivity;
 
 import java.util.concurrent.TimeUnit;
 
@@ -29,7 +30,7 @@ public class ExtendedDetailsService
 {
     final OkHttpClient client=new OkHttpClient.Builder()
             .readTimeout(60, TimeUnit.SECONDS)
-            .connectTimeout(60,TimeUnit.SECONDS)
+            .connectTimeout(60, TimeUnit.SECONDS)
             .build();
 
     final Retrofit adapter = new Retrofit.Builder()
@@ -42,13 +43,21 @@ public class ExtendedDetailsService
 
     final Realm realm;
 
-    final AlertDialog dialog;
+    final SplashActivity activity;
 
-    public ExtendedDetailsService(AlertDialog dialog,Context c)
+    public ExtendedDetailsService(SplashActivity activity)
     {
         serviceInstance=adapter.create(Fan1ServerInterface.class);
-        realm=Realm.getInstance(c);
-        this.dialog=dialog;
+        this.activity=activity;
+        realm=Realm.getInstance(activity.getBaseContext());
+    }
+
+    public ExtendedDetailsService(Context c)
+    {
+        this.realm=Realm.getInstance(c);
+
+        activity=null;
+        serviceInstance=adapter.create(Fan1ServerInterface.class);
     }
 
     public void getCurrentSeason(){}
@@ -57,7 +66,7 @@ public class ExtendedDetailsService
 
     public void loadLeaderboard()
     {
-        dialog.setMessage("Updating Leaderboard");
+        activity.mDialog.setMessage("Updating Leaderboard");
 
         Call<LeaderboardsModel> call=serviceInstance.getLeaderboardAsync();
 
@@ -80,9 +89,51 @@ public class ExtendedDetailsService
                 }
 
                 realm.commitTransaction();
-                dialog.dismiss();
+                activity.mDialog.dismiss();
 
-                checkRealm();
+                activity.loadFinished();
+            }
+
+            public void checkRealm()
+            {
+                RealmResults<Leaderboard> leaderboards=realm.where(Leaderboard.class).findAll();
+                System.out.println("Leaderboards # : " + leaderboards.size());
+                for (Leaderboard c:leaderboards)
+                {
+                    System.out.println(c);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LeaderboardsModel> call, Throwable t) {
+                System.out.println(t.toString());
+            }
+        });
+    }
+
+    public void updateLeaderboard()
+    {
+        Call<LeaderboardsModel> call=serviceInstance.getLeaderboardAsync();
+
+        call.enqueue(new Callback<LeaderboardsModel>()
+        {
+            @Override
+            public void onResponse(Call<LeaderboardsModel> call, Response<LeaderboardsModel> response) {
+
+                realm.beginTransaction();
+                realm.clear(Leaderboard.class);
+                realm.commitTransaction();
+                realm.beginTransaction();
+
+                for(int i=0;i<response.body().getLeaderboard().length ; i++)
+                {
+                    Leaderboard leaderboard=realm.createObject(Leaderboard.class);
+                    leaderboard.setObject(response.body().getLeaderboard()[i]);
+                    Driver driver=realm.where(Driver.class).equalTo("driverId",response.body().getLeaderboard()[i].getDriverId()).findFirst();
+                    leaderboard.setDriver(driver);
+                }
+
+                realm.commitTransaction();
             }
 
             public void checkRealm()

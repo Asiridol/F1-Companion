@@ -54,7 +54,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Team Name"
-                android:id="@+id/team"
+                android:id="@+id/tTeam"
                 android:textColor="#FFFFFF"
                 android:textStyle="bold"
                 android:textSize="18dp"/>

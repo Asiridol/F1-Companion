@@ -43,6 +43,8 @@ import java.util.TimeZone;
 import at.theengine.android.simple_rss2_android.RSSItem;
 import at.theengine.android.simple_rss2_android.SimpleRss2Parser;
 import at.theengine.android.simple_rss2_android.SimpleRss2ParserCallback;
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import io.realm.Realm;
 
 /**
@@ -54,15 +56,12 @@ import io.realm.Realm;
  * create an instance of this fragment.
  */
 public class NewsFragment extends Fragment {
+    @Bind(R.id.newsList)ListView list;
+    @Bind(R.id.pull_to_refresh)PullToRefreshView mPullToRefreshView;
 
     private OnFragmentInteractionListener mListener;
-
     AlertDialog dialog;
     List<RSSItem> items;
-
-    ListView list;
-
-    PullToRefreshView mPullToRefreshView;
     SimpleRss2Parser parser;
     NewsListAdapter mAdapter;
 
@@ -135,8 +134,7 @@ public class NewsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v=inflater.inflate(R.layout.fragment_news, container, false);
-        list=(ListView)v.findViewById(R.id.newsList);
-        mPullToRefreshView= (PullToRefreshView) v.findViewById(R.id.pull_to_refresh);
+        ButterKnife.bind(this,v);
         return v;
     }
 
@@ -187,8 +185,8 @@ class NewsListAdapter extends ArrayAdapter implements View.OnClickListener
     LayoutInflater inflater;
     Context context;
 
-    DateFormat formatter=new SimpleDateFormat("EEE, DD MMM yyyy HH:mm:ss zzzz");
-    DateFormat output=new SimpleDateFormat("DD/MM\nEEE");
+    DateFormat formatter=new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzzz");
+    DateFormat output=new SimpleDateFormat("dd/MM\nEEE");
 
     public NewsListAdapter(Context context,List<RSSItem> data) {
         super(context, R.layout.row_news);
@@ -211,11 +209,8 @@ class NewsListAdapter extends ArrayAdapter implements View.OnClickListener
 
         if(view==null)
         {
-            holder=new ViewHolder();
             view=inflater.inflate(R.layout.row_news,viewGroup,false);
-            holder.tTitle=(TextView)view.findViewById(R.id.newsTitle);
-            holder.tDesc=(TextView)view.findViewById(R.id.descNews);
-            holder.tDate=(TextView)view.findViewById(R.id.newsDate);
+            holder=new ViewHolder(view);
             holder.i=i;
             view.setTag(holder);
         }
@@ -253,10 +248,15 @@ class NewsListAdapter extends ArrayAdapter implements View.OnClickListener
 
     static class ViewHolder
     {
-        TextView tTitle;
-        TextView tDesc;
-        TextView tDate;
+        @Bind(R.id.newsTitle)TextView tTitle;
+        @Bind(R.id.newsDesc)TextView tDesc;
+        @Bind(R.id.newsDate)TextView tDate;
         int i;
+
+        public ViewHolder(View view)
+        {
+            ButterKnife.bind(this,view);
+        }
     }
 }
 

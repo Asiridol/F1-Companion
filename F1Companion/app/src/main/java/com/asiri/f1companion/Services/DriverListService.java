@@ -56,8 +56,6 @@ public class DriverListService
         private int rowType=0;
         private HashMap<String,String> data=new HashMap<String,String>();
 
-
-
         public int getRowType() {
             return rowType;
         }

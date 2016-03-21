@@ -18,9 +18,9 @@
                     android:id="@+id/collapsing_container"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    app:layout_scrollFlags="snap|scroll|exitUntilCollapsed"
                     android:elevation="2dp"
-                    android:background="@drawable/flag_back">
+                    android:background="@drawable/flag_back"
+                    app:layout_scrollFlags="snap|scroll|enterAlways">
                     <ViewFlipper android:id="@+id/flipper"
                         android:layout_height="fill_parent"
                         android:layout_width="fill_parent">
@@ -72,7 +72,7 @@
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="No Races scheduled"
+                                android:text="Oh Snap! Looks like the season ended"
                                 android:textAlignment="center"
                                 android:textSize="48dp"
                                 android:textColor="#88000000"/>
@@ -80,10 +80,16 @@
                 </ViewFlipper>
             </android.support.design.widget.CollapsingToolbarLayout>
         </android.support.design.widget.AppBarLayout>
+        <com.yalantis.phoenix.PullToRefreshView
+            android:id="@+id/pull_to_refresh_leaderboard"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
             <android.support.v7.widget.RecyclerView
-                android:id="@+id/my_recycler_view"
+                android:id="@+id/leader_recycler"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 app:behavior_overlapTop="2dp"/>
+        </com.yalantis.phoenix.PullToRefreshView>
     </android.support.design.widget.CoordinatorLayout>
