@@ -1,4 +1,4 @@
-package com.asiri.f1companion.UI.Animation;
+package com.asiri.f1companion.UI.Support.Animation;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;

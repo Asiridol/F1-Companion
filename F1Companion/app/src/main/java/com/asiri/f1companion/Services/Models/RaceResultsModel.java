@@ -1,10 +1,11 @@
 package com.asiri.f1companion.Services.Models;
 
+import java.io.Serializable;
+
 /**
  * Created by asiri on 3/16/2016.
  */
-public class RaceResultsModel
-{
+public class RaceResultsModel implements Serializable {
     private RaceResult[] raceResult;
 
     public RaceResult[] getRaceResult ()

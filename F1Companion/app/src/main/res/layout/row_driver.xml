@@ -26,14 +26,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_alignParentRight="true">
+                android:layout_alignParentRight="true"
+                android:paddingRight="5dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="15dp"
                 android:text="BUT"
                 android:layout_gravity="right"
-                android:id="@+id/tCode" />
+                android:id="@+id/tCode"
+                android:paddingRight="5dp"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -41,7 +43,8 @@
                 android:id="@+id/tNumber"
                 android:text="44"
                 android:layout_below ="@id/tCode"
-                android:layout_gravity="right"/>
+                android:layout_gravity="right"
+                android:paddingRight="5dp"/>
             </LinearLayout>
         </RelativeLayout>
         <LinearLayout

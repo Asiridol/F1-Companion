@@ -181,8 +181,8 @@ public class InitialLoaderService {
 
                 activity.mDialog.show();
 
-                ExtendedDetailsService ex=new ExtendedDetailsService(activity);
-                ex.loadLeaderboard();
+                ExtendedDetailsService ex=new ExtendedDetailsService();
+                ex.loadLeaderboard(activity);
             }
 
             public void checkRealm()

@@ -1,6 +1,7 @@
 package com.asiri.f1companion.UI.Activities;
 
 import android.app.ProgressDialog;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.AlertDialog;
@@ -11,12 +12,10 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.WindowManager;
 
 import com.asiri.f1companion.R;
-import com.asiri.f1companion.Services.InitialLoaderService;
-import com.asiri.f1companion.UI.Animation.DepthPageTransformer;
+import com.asiri.f1companion.UI.Support.Animation.DepthPageTransformer;
 import com.asiri.f1companion.UI.Fragments.DriversFragment;
 import com.asiri.f1companion.UI.Fragments.HomeFragment;
 import com.asiri.f1companion.UI.Fragments.NewsFragment;
@@ -30,38 +29,41 @@ public class HomeActivity extends AppCompatActivity implements HomeFragment.OnFr
     @Bind(R.id.toolbar) Toolbar toolbar;
     @Bind(R.id.tab_layout)TabLayout tablayout;
     @Bind(R.id.pager)ViewPager pager;
-    ViewPagerAdapter adapter;
+    HomePagerAdapter adapter;
 
     CharSequence[] titles={"Home","Drivers","News","Races"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setContentView(R.layout.activity_home);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        setContentView(R.layout.activity_home);
         ButterKnife.bind(this);
-
+        setSupportActionBar(toolbar);
         setupUI();
     }
 
-    public void setupUI()
+    @Override
+    public void onBackPressed()
     {
+        finish();
+    }
+
+    public void setupUI() {
         setSupportActionBar(toolbar);
         toolbar.setTitle("Fan1 Companion");
+        toolbar.setTitleTextColor(Color.WHITE);
+        tablayout.setTabTextColors(Color.LTGRAY,Color.WHITE);
 
         AlertDialog dialog=new ProgressDialog(this);
-        dialog.setTitle("Loading ...");
-        dialog.setMessage("Loading ");
-        dialog.setCancelable(false);
-        //dialog.show();
-        adapter=new ViewPagerAdapter(getSupportFragmentManager(),titles,titles.length);
+
+        adapter=new HomePagerAdapter(getSupportFragmentManager(),titles,titles.length);
         pager.setAdapter(adapter);
         pager.setPageTransformer(true, new DepthPageTransformer());
         pager.clearAnimation();
-        pager.setOffscreenPageLimit(3);
+        pager.setOffscreenPageLimit(4);
         tablayout.setupWithViewPager(pager);
     }
 
@@ -71,14 +73,14 @@ public class HomeActivity extends AppCompatActivity implements HomeFragment.OnFr
     }
 }
 
-class ViewPagerAdapter extends FragmentStatePagerAdapter {
+class HomePagerAdapter extends FragmentStatePagerAdapter {
 
     CharSequence Titles[]; // This will Store the Titles of the Tabs which are Going to be passed when ViewPagerAdapter is created
     int NumbOfTabs; // Store the number of tabs, this will also be passed when the ViewPagerAdapter is created
 
 
     // Build a Constructor and assign the passed Values to appropriate values in the class
-    public ViewPagerAdapter(FragmentManager fm,CharSequence mTitles[], int mNumbOfTabsumb) {
+    public HomePagerAdapter(FragmentManager fm,CharSequence mTitles[], int mNumbOfTabsumb) {
         super(fm);
 
         this.Titles = mTitles;

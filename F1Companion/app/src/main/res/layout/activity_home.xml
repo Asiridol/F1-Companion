@@ -21,17 +21,15 @@
     <android.support.design.widget.TabLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
         android:id="@+id/tab_layout"
         />
 </android.support.design.widget.AppBarLayout>
     <android.support.v4.view.ViewPager
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="105dp"
         android:id="@+id/pager"
         android:flipInterval="30"
-        android:persistentDrawingCache="animation"
+        android:layout_marginTop="105dp"
         >
         </android.support.v4.view.ViewPager>
 </android.support.design.widget.CoordinatorLayout>

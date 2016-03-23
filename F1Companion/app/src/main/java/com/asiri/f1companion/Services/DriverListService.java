@@ -17,15 +17,14 @@ import io.realm.Realm;
  */
 public class DriverListService
 {
-
-    public ArrayList<RowModel> getTableUIList(Context context)
+    public ArrayList<DriverRowModel> getTableUIList(Context context)
     {
-        ArrayList<RowModel> rows=new ArrayList<RowModel>();
+        ArrayList<DriverRowModel> rows=new ArrayList<DriverRowModel>();
 
         List<Constructor> teams= Realm.getInstance(context).where(Constructor.class).findAll();
 
         for (Constructor team:teams){
-            RowModel headerRow=new RowModel();
+            DriverRowModel headerRow=new DriverRowModel();
             headerRow.setRowType(headerRow.HEADER);
             headerRow.getData().put("Title",team.getName());
             headerRow.getData().put("Nationality",team.getNationality());
@@ -34,7 +33,7 @@ public class DriverListService
 
             for (Driver d:team.getDrivers())
             {
-                RowModel itemRow=new RowModel();
+                DriverRowModel itemRow=new DriverRowModel();
                 itemRow.setRowType(itemRow.ITEM);
 
                 itemRow.getData().put("Name",d.getGivenName() + " " + d.getFamilyName());
@@ -49,7 +48,7 @@ public class DriverListService
         return rows;
     }
 
-    public class RowModel
+    public class DriverRowModel
     {
         public int HEADER=0;
         public int ITEM=1;

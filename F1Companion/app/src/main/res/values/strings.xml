@@ -4,4 +4,7 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_race_result">Race Result</string>
+    <string name="title_activity_extended_race_results">ExtendedRaceResults</string>
+    <string name="title_activity_extended_results">ExtendedResultsActivity</string>
 </resources>

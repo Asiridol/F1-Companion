@@ -1,6 +1,7 @@
 package com.asiri.f1companion.UI.Fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,6 +20,7 @@ import com.asiri.f1companion.Models.Leaderboard;
 import com.asiri.f1companion.Models.Race;
 import com.asiri.f1companion.R;
 import com.asiri.f1companion.Services.ExtendedDetailsService;
+import com.asiri.f1companion.UI.Activities.DriverInformationActivity;
 import com.yalantis.phoenix.PullToRefreshView;
 
 import java.text.DateFormat;
@@ -42,6 +44,7 @@ import io.realm.RealmResults;
  * create an instance of this fragment.
  */
 public class HomeFragment extends Fragment {
+
     @Bind(R.id.pull_to_refresh_leaderboard) PullToRefreshView mPullToRefreshView;
     @Bind(R.id.leader_recycler) RecyclerView mRecyclerView;
     @Bind(R.id.homeRaceName)TextView tNextRace;
@@ -111,7 +114,7 @@ public class HomeFragment extends Fragment {
                     public void run() {
                         leaders=null;
                         mPullToRefreshView.setRefreshing(false);
-                        new ExtendedDetailsService(context).updateLeaderboard();
+                        new ExtendedDetailsService().updateLeaderboard(getActivity().getBaseContext());
                         mAdapter.notifyDataSetChanged();
                     }
                 }, 3000);
@@ -223,7 +226,9 @@ class LeaderBoardAdapter extends RecyclerView.Adapter<LeaderBoardAdapter.ViewHol
 
     @Override
     public void onClick(View view) {
-        Toast.makeText(context,"item : " + ((ViewHolder)view.getTag()).id,Toast.LENGTH_SHORT).show();
+        Intent driverIntent=new Intent(context, DriverInformationActivity.class);
+        driverIntent.putExtra("driverId",((ViewHolder)view.getTag()).id);
+        context.startActivity(driverIntent);
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

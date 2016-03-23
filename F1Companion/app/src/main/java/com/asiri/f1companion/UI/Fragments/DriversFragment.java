@@ -1,6 +1,7 @@
 package com.asiri.f1companion.UI.Fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -16,6 +17,8 @@ import android.widget.ViewFlipper;
 import com.asiri.f1companion.Models.Driver;
 import com.asiri.f1companion.R;
 import com.asiri.f1companion.Services.DriverListService;
+import com.asiri.f1companion.UI.Activities.DriverInformationActivity;
+import com.asiri.f1companion.UI.Activities.HomeActivity;
 
 import org.w3c.dom.Text;
 
@@ -39,7 +42,7 @@ public class DriversFragment extends Fragment{
     @Bind(R.id.driversList) ListView list;
 
     private OnFragmentInteractionListener mListener;
-    ArrayList<DriverListService.RowModel> data;
+    ArrayList<DriverListService.DriverRowModel> data;
     Realm realm;
 
     public DriversFragment() {
@@ -94,12 +97,12 @@ public class DriversFragment extends Fragment{
 
 class DriverListAdapter extends ArrayAdapter implements View.OnClickListener
 {
-    ArrayList<DriverListService.RowModel> data;
+    ArrayList<DriverListService.DriverRowModel> data;
 
     LayoutInflater inflater;
     Context context;
 
-    public DriverListAdapter(Context context,ArrayList<DriverListService.RowModel> data) {
+    public DriverListAdapter(Context context,ArrayList<DriverListService.DriverRowModel> data) {
         super(context, R.layout.row_driver);
         this.data=data;
         this.inflater=(LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -158,7 +161,9 @@ class DriverListAdapter extends ArrayAdapter implements View.OnClickListener
             ViewHolder holder;
             holder=(ViewHolder)view.getTag();
 
-            Toast.makeText(context,"Driver Id : " + holder.driverId,Toast.LENGTH_SHORT).show();
+            Intent driverIntent=new Intent(context, DriverInformationActivity.class);
+            driverIntent.putExtra("driverId",holder.driverId);
+            context.startActivity(driverIntent);
         }
 
     static class ViewHolder

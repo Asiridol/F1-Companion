@@ -1,15 +1,19 @@
 package com.asiri.f1companion.Services;
 
-import android.app.AlertDialog;
 import android.content.Context;
+import android.support.design.widget.Snackbar;
 
 import com.asiri.f1companion.Commons.Defaults;
-import com.asiri.f1companion.Models.Constructor;
 import com.asiri.f1companion.Models.Driver;
 import com.asiri.f1companion.Models.Leaderboard;
+import com.asiri.f1companion.R;
 import com.asiri.f1companion.Services.Interfaces.Fan1ServerInterface;
-import com.asiri.f1companion.Services.Models.ConstructorsModel;
+import com.asiri.f1companion.Services.Models.LapTimesModel;
 import com.asiri.f1companion.Services.Models.LeaderboardsModel;
+import com.asiri.f1companion.Services.Models.QualifyingResultsModel;
+import com.asiri.f1companion.Services.Models.RaceResultsModel;
+import com.asiri.f1companion.UI.Activities.ExtendedResultsActivity;
+import com.asiri.f1companion.UI.Activities.RaceResultActivity;
 import com.asiri.f1companion.UI.Activities.SplashActivity;
 
 import java.util.concurrent.TimeUnit;
@@ -41,31 +45,53 @@ public class ExtendedDetailsService
 
     final Fan1ServerInterface serviceInstance;
 
-    final Realm realm;
+    Realm realm;
 
-    final SplashActivity activity;
-
-    public ExtendedDetailsService(SplashActivity activity)
+    public ExtendedDetailsService()
     {
         serviceInstance=adapter.create(Fan1ServerInterface.class);
-        this.activity=activity;
+    }
+
+    public void getRaceResults(final String season, final String round, final RaceResultActivity activity)
+    {
+        Call<RaceResultsModel> call=serviceInstance.getRaceResultsAsync("/raceresults?season=" + season + "&round=" + round);
+        call.enqueue(new Callback<RaceResultsModel>() {
+            @Override
+            public void onResponse(Call<RaceResultsModel> call, Response<RaceResultsModel> response) {
+
+                activity.finishedLoadingRaceResults(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<RaceResultsModel> call, Throwable t) {
+                activity.mDialog.dismiss();
+                Snackbar.make(activity.getCurrentFocus(), "Error loading Race Results", Snackbar.LENGTH_LONG).show();
+                t.printStackTrace();
+            }
+        });
+    }
+
+    public void getQualifyingResults(String season, String round, final RaceResultActivity activity)
+    {
+        Call<QualifyingResultsModel> call=serviceInstance.getQualifyingResutlsAsync("/qualifyingresults?season=" + season + "&round=" + round);
+        call.enqueue(new Callback<QualifyingResultsModel>() {
+            @Override
+            public void onResponse(Call<QualifyingResultsModel> call, Response<QualifyingResultsModel> response) {
+                activity.finishedLoadingQualifyingResults(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<QualifyingResultsModel> call, Throwable t) {
+                activity.mDialog.dismiss();
+                Snackbar.make(activity.getCurrentFocus(), "Error loading Qualifying Results", Snackbar.LENGTH_LONG).show();
+                t.printStackTrace();
+            }
+        });
+    }
+
+    public void loadLeaderboard(final SplashActivity activity)
+    {
         realm=Realm.getInstance(activity.getBaseContext());
-    }
-
-    public ExtendedDetailsService(Context c)
-    {
-        this.realm=Realm.getInstance(c);
-
-        activity=null;
-        serviceInstance=adapter.create(Fan1ServerInterface.class);
-    }
-
-    public void getCurrentSeason(){}
-
-    public void getAllStatuses(){}
-
-    public void loadLeaderboard()
-    {
         activity.mDialog.setMessage("Updating Leaderboard");
 
         Call<LeaderboardsModel> call=serviceInstance.getLeaderboardAsync();
@@ -111,8 +137,9 @@ public class ExtendedDetailsService
         });
     }
 
-    public void updateLeaderboard()
+    public void updateLeaderboard(Context context)
     {
+        realm=Realm.getInstance(context);
         Call<LeaderboardsModel> call=serviceInstance.getLeaderboardAsync();
 
         call.enqueue(new Callback<LeaderboardsModel>()
@@ -149,6 +176,24 @@ public class ExtendedDetailsService
             @Override
             public void onFailure(Call<LeaderboardsModel> call, Throwable t) {
                 System.out.println(t.toString());
+            }
+        });
+    }
+
+    public void getLapTimes(String season, String round, String driverId,final ExtendedResultsActivity dialog)
+    {
+        Call<LapTimesModel> call=serviceInstance.getLapTimesAsync("/laptimes?id=" + driverId + "&season=" + season + "&round=" + round);
+        call.enqueue(new Callback<LapTimesModel>()
+        {
+            @Override
+            public void onResponse(Call<LapTimesModel> call, Response<LapTimesModel> response) {
+                dialog.finishedLoading(response.body().getLapTimes());
+            }
+
+            @Override
+            public void onFailure(Call<LapTimesModel> call, Throwable t) {
+                Snackbar.make(dialog.findViewById(R.id.spinner),"Error loading lap times",Snackbar.LENGTH_LONG).show();
+                dialog.finishedLoading(null);
             }
         });
     }
