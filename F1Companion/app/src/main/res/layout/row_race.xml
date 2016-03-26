@@ -6,7 +6,8 @@
     android:layout_margin="3dp"
     android:padding="12dp"
     android:background="#eeeeee"
-    android:elevation="2dp">
+    android:elevation="2dp"
+    android:id="@+id/parentView">
 <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="50dp"

@@ -1,31 +1,48 @@
 package com.asiri.f1companion.UI.Activities;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.PagerTitleStrip;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.BounceInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 import com.asiri.f1companion.R;
 import com.asiri.f1companion.Services.ExtendedDetailsService;
 import com.asiri.f1companion.Services.Models.LapTimesModel;
+import com.asiri.f1companion.Services.Models.PitStopsModel;
 import com.hrules.charter.CharterLine;
 import com.hrules.charter.CharterXLabels;
 import com.hrules.charter.CharterYLabels;
+import com.luseen.luseenbottomnavigation.BottomNavigation.BottomNavigationItem;
+import com.luseen.luseenbottomnavigation.BottomNavigation.BottomNavigationView;
+
 import org.eazegraph.lib.models.ValueLineSeries;
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -33,6 +50,7 @@ import butterknife.ButterKnife;
 public class ExtendedResultsActivity extends AppCompatActivity
 {
     LapTimesModel.LapTime[] lapTimes;
+    PitStopsModel.PitStop[] pitStops;
     private RecyclerView.LayoutManager mLayoutManager;
     String round;
     String season;
@@ -52,6 +70,7 @@ public class ExtendedResultsActivity extends AppCompatActivity
 
     @Bind(R.id.lapTimes_recylcer)RecyclerView recyclerView;
     @Bind(R.id.pager)ViewPager pager;
+    @Bind(R.id.bottomNavigation)BottomNavigationView navigationView;
 
     float maxPos;
     float minPos;
@@ -63,11 +82,29 @@ public class ExtendedResultsActivity extends AppCompatActivity
     float[] valuesTime;
     String[] labels;
 
+    int i=0;
+
+    ExtendedDetailsService service=new ExtendedDetailsService();
+
+    ArrayList<Object> UIList=new ArrayList<Object>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_extended_results);
         ButterKnife.bind(this);
+
+        BottomNavigationItem item1=new BottomNavigationItem("Time",getResources().getColor(R.color.timeItem),R.drawable.ic_action_stopwatch);
+        BottomNavigationItem item2=new BottomNavigationItem("Place",getResources().getColor(R.color.posItem),R.drawable.ic_action_place);
+        navigationView.addTab(item2);
+        navigationView.addTab(item1);
+
+        navigationView.setOnBottomNavigationItemClickListener(new BottomNavigationView.OnBottomNavigationItemClickListener() {
+            @Override
+            public void onNavigationItemClick(int index) {
+                pager.setCurrentItem(index);
+            }
+        });
 
         round=getIntent().getStringExtra("round");
         season=getIntent().getStringExtra("season");
@@ -95,18 +132,59 @@ public class ExtendedResultsActivity extends AppCompatActivity
         if(flipper.getDisplayedChild()!=1) {
             flipper.showNext();
         }
-        ExtendedDetailsService service=new ExtendedDetailsService();
-        service.getLapTimes(season,round,driverId,this);
+
+        service.getLapTimes(season, round, driverId, this);
     }
 
-    public void finishedLoading(LapTimesModel.LapTime[] lapTimes)
+    public void finishedLoadingLapTimes(LapTimesModel.LapTime[] lapTimes)
+    {
+        if(lapTimes==null)
+        {
+            Toast.makeText(this, "Error loading Lap times", Toast.LENGTH_LONG).show();
+            this.finish();
+        }
+        else
+        {
+            this.lapTimes = lapTimes;
+
+            UIList.add("Lap Times");
+            for (LapTimesModel.LapTime lapTime:lapTimes){
+                UIList.add(lapTime);
+            }
+
+            service.getPitStops(season, round, driverId, this);
+        }
+
+    }
+
+    public void finishedLoadingPitStops(PitStopsModel.PitStop[] pitStops)
+    {
+        if(pitStops==null)
+        {
+            Toast.makeText(this, "Error loading Pit stops", Toast.LENGTH_LONG).show();
+            this.finish();
+        }
+        else {
+            this.pitStops = pitStops;
+            UIList.add("Pit Stops");
+            for (PitStopsModel.PitStop pitStop:pitStops){
+                UIList.add(pitStop);
+            }
+
+            for (Object object:UIList) {
+                System.out.println("Class : " + object.getClass());
+            }
+
+            finishLoadingUI();
+        }
+    }
+
+    public void finishLoadingUI()
     {
         if(lapTimes!=null) {
             if (flipper.getDisplayedChild() != 0) {
                 flipper.showNext();
             }
-
-            this.lapTimes = lapTimes;
 
             ValueLineSeries series = new ValueLineSeries();
             series.setColor(Color.GRAY);
@@ -161,13 +239,15 @@ public class ExtendedResultsActivity extends AppCompatActivity
                 valuesPos[i]=pos;
             }
 
-            String[] ylabelsPos = new String[2];
+            String[] ylabelsPos = new String[3];
             ylabelsPos[0] = "" + Math.round(minPos);
-            ylabelsPos[1] = "" + Math.round(maxPos);
+            ylabelsPos[1] = "" + Math.round((maxPos+minPos)/2);
+            ylabelsPos[2] = "" + Math.round(maxPos);
 
-            String[] ylabelsTime = new String[2];
+            String[] ylabelsTime = new String[3];
             ylabelsTime[0] = "" + minTime;
-            ylabelsTime[1] = "" + Math.round(maxTime)+ "s";
+            ylabelsTime[1] = "" + Math.round((maxTime+minTime)/2)+ "s";
+            ylabelsTime[2] = "" + Math.round(maxTime)+ "s";
 
             // start Pos chart
             lineChartPos.setValues(valuesPos);
@@ -195,9 +275,17 @@ public class ExtendedResultsActivity extends AppCompatActivity
             // use a linear layout manager
             mLayoutManager = new LinearLayoutManager(this);
             recyclerView.setLayoutManager(mLayoutManager);
-            recyclerView.setAdapter(new LapTimesAdapter(lapTimes));
+            recyclerView.setAdapter(new LapTimesAdapter(UIList, getBaseContext()));
 
             pager.setAdapter(new ChartPagerAdapter(this));
+
+            pager.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    pager.setCurrentItem(pager.getCurrentItem());
+                    return true;
+                }
+            });
 
             pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                 @Override
@@ -225,12 +313,21 @@ public class ExtendedResultsActivity extends AppCompatActivity
 
 class LapTimesAdapter extends RecyclerView.Adapter<LapTimesAdapter.ViewHolder>{
 
-    LapTimesModel.LapTime[] mDataset;
+    ArrayList<Object> UIList;
+    Context context;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         @Bind(R.id.lapNumber) TextView lapNumber;
         @Bind(R.id.lapTime) TextView lapTime;
         @Bind(R.id.lapPosition) TextView lapPosition;
+        @Bind(R.id.pitDuration) TextView pitDuration;
+        @Bind(R.id.pitLap) TextView pitLap;
+        @Bind(R.id.pitNumber) TextView pitNumber;
+        @Bind(R.id.LapTimeRow) RelativeLayout lapTimeRow;
+        @Bind(R.id.PitStopRow) RelativeLayout pitStopRow;
+        @Bind(R.id.heading)TextView header;
+        @Bind(R.id.flipperLapTimes) ViewFlipper flipper;
+        @Bind(R.id.parentView)CardView parent;
 
         public ViewHolder(View v) {
             super(v);
@@ -239,8 +336,9 @@ class LapTimesAdapter extends RecyclerView.Adapter<LapTimesAdapter.ViewHolder>{
         }
     }
 
-    public LapTimesAdapter(LapTimesModel.LapTime[] mDataset) {
-        this.mDataset = mDataset;
+    public LapTimesAdapter(ArrayList<Object> UIList,Context context) {
+        this.UIList = UIList;
+        this.context=context;
     }
 
     @Override
@@ -256,14 +354,53 @@ class LapTimesAdapter extends RecyclerView.Adapter<LapTimesAdapter.ViewHolder>{
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.lapNumber.setText(mDataset[position].getLap());
-        holder.lapPosition.setText("Position : " + mDataset[position].getPosition());
-        holder.lapTime.setText(mDataset[position].getTime());
+
+        if(UIList.get(position).getClass()==String.class)
+        {
+            holder.header.setText((String)UIList.get(position));
+            holder.parent.setBackgroundColor(context.getResources().getColor(R.color.colorPrimary));
+
+            if(holder.flipper.getDisplayedChild()!=1)
+            {
+                holder.flipper.showNext();
+            }
+        }else
+        {
+            holder.parent.setBackgroundColor(Color.WHITE);
+            if(UIList.get(position).getClass()== LapTimesModel.LapTime.class)
+            {
+                holder.lapTimeRow.setVisibility(View.VISIBLE);
+                holder.pitStopRow.setVisibility(View.GONE);
+
+                holder.lapNumber.setText(((LapTimesModel.LapTime) UIList.get(position)).getLap());
+                holder.lapPosition.setText("Position : " + ((LapTimesModel.LapTime)UIList.get(position)).getPosition());
+                holder.lapTime.setText(((LapTimesModel.LapTime)UIList.get(position)).getTime());
+
+                if(holder.flipper.getDisplayedChild()!=0)
+                {
+                    holder.flipper.showNext();
+                }
+            }
+            else
+            {
+                holder.lapTimeRow.setVisibility(View.GONE);
+                holder.pitStopRow.setVisibility(View.VISIBLE);
+
+                holder.pitNumber.setText(((PitStopsModel.PitStop) UIList.get(position)).getStop());
+                holder.pitLap.setText("During Lap " + ((PitStopsModel.PitStop)UIList.get(position)).getLap());
+                holder.pitDuration.setText("Duration " + ((PitStopsModel.PitStop) UIList.get(position)).getDuration());
+
+                if(holder.flipper.getDisplayedChild()!=0)
+                {
+                    holder.flipper.showNext();
+                }
+            }
+        }
     }
 
     @Override
     public int getItemCount() {
-        return mDataset.length;
+        return UIList.size();
     }
 }
 
@@ -299,5 +436,18 @@ class ChartPagerAdapter extends PagerAdapter
     @Override
     public boolean isViewFromObject(View arg0, Object arg1) {
         return arg0 == ((View) arg1);
+    }
+
+    @Override
+    public CharSequence getPageTitle (int position)
+    {
+        if(position==0)
+        {
+            return "Position against lap";
+        }
+        else
+        {
+            return "Time against lap";
+        }
     }
 }

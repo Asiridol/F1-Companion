@@ -20,7 +20,7 @@
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="10dp">
@@ -35,22 +35,25 @@
                 android:paddingTop="50dp"
                 android:paddingRight="10dp"
                 android:paddingLeft="10dp">
+
+                <com.luseen.luseenbottomnavigation.BottomNavigation.BottomNavigationView
+                    android:id="@+id/bottomNavigation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
                 <android.support.v4.view.ViewPager
                     android:layout_width="match_parent"
-                    android:layout_height="250dp"
+                    android:layout_height="280dp"
                     android:id="@+id/pager">
+                    <!--
+                    <android.support.v4.view.PagerTitleStrip
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/titleStrip"/> -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:id="@+id/pageOne">
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Position against Lap"
-                            android:textSize="18dp"
-                            android:gravity="center_horizontal"
-                            android:textStyle="bold"/>
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
@@ -60,13 +63,13 @@
                             <com.hrules.charter.CharterYLabels
                                 android:id="@+id/charter_line_YMarkerPos"
                                 android:layout_width="40dp"
-                                android:layout_height="200dp"
+                                android:layout_height="210dp"
                                 android:paddingLeft="-10dp"/>
 
                             <com.hrules.charter.CharterLine
                                 android:id="@+id/charter_linePos"
                                 android:layout_width="fill_parent"
-                                android:layout_height="200dp"/>
+                                android:layout_height="210dp"/>
                         </LinearLayout>
                     </LinearLayout>
                     <LinearLayout
@@ -74,13 +77,6 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:id="@+id/pageTwo">
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Time against Lap"
-                            android:textSize="18dp"
-                            android:gravity="center_horizontal"
-                            android:textStyle="bold"/>
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
@@ -90,12 +86,12 @@
                             <com.hrules.charter.CharterYLabels
                                 android:id="@+id/charter_line_YMarkerTime"
                                 android:layout_width="40dp"
-                                android:layout_height="200dp"
+                                android:layout_height="210dp"
                                 android:paddingLeft="-10dp" />
                             <com.hrules.charter.CharterLine
                                 android:id="@+id/charter_lineTime"
                                 android:layout_width="fill_parent"
-                                android:layout_height="200dp"/>
+                                android:layout_height="210dp"/>
                         </LinearLayout>
                     </LinearLayout>
                 </android.support.v4.view.ViewPager>
@@ -118,6 +114,6 @@
                 android:layout_gravity="center_horizontal|center_vertical"
                 />
         </ViewFlipper>
-    </LinearLayout>
+    </RelativeLayout>
 
 </android.support.design.widget.CoordinatorLayout>

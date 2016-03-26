@@ -38,7 +38,6 @@ public class DriverListService
 
                 itemRow.getData().put("Name",d.getGivenName() + " " + d.getFamilyName());
                 itemRow.getData().put("Code",d.getCode());
-                System.out.println("Code of the driver " + d.getPermanentNumber());
                 itemRow.getData().put("Num",d.getPermanentNumber());
                 itemRow.getData().put("Id",d.getDriverId());
                 rows.add(itemRow);

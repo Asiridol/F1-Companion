@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -159,7 +160,7 @@ class RaceListAdapter extends RecyclerView.Adapter<RaceListAdapter.ViewHolder> i
         @Bind(R.id.raceDate) TextView raceDate;
         @Bind(R.id.raceName) TextView raceName;
         @Bind(R.id.roundNum) TextView raceRound;
-        @Bind(R.id.raceBack) RelativeLayout layout;
+        @Bind(R.id.parentView)CardView parent;
         String round;
         boolean finished;
 
@@ -205,12 +206,12 @@ class RaceListAdapter extends RecyclerView.Adapter<RaceListAdapter.ViewHolder> i
             raceDate=cal.getTime();
             if(today.after(raceDate))
             {
-                holder.layout.setBackgroundColor(Color.LTGRAY);
+                holder.parent.setBackgroundColor(Color.LTGRAY);
                 holder.finished=true;
             }
             else
             {
-                holder.layout.setBackgroundColor(Color.WHITE);
+                holder.parent.setBackgroundColor(Color.WHITE);
             }
         } catch (ParseException e) {
             e.printStackTrace();

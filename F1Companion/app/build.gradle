@@ -7,8 +7,8 @@ android {
         applicationId 'com.asiri.fone.companion'
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 2
-        versionName "1.0.1"
+        versionCode 4
+        versionName "1.0.3"
         multiDexEnabled true
     }
     buildTypes {
@@ -51,6 +51,7 @@ dependencies {
     compile 'com.github.blackfizz:eazegraph:1.2.2@aar'
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'com.hrules:charter:1.4.0'
+    compile 'com.github.armcha:LuseenBottomNavigation:1.1'
 }
 
 apply plugin: 'realm-android'

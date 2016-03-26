@@ -8,10 +8,15 @@ import com.asiri.f1companion.Models.Driver;
 import com.asiri.f1companion.Models.Leaderboard;
 import com.asiri.f1companion.R;
 import com.asiri.f1companion.Services.Interfaces.Fan1ServerInterface;
+import com.asiri.f1companion.Services.Models.AllStatusesModel;
+import com.asiri.f1companion.Services.Models.AllTimeStatisticsModel;
+import com.asiri.f1companion.Services.Models.CurrentSeasonModel;
 import com.asiri.f1companion.Services.Models.LapTimesModel;
 import com.asiri.f1companion.Services.Models.LeaderboardsModel;
+import com.asiri.f1companion.Services.Models.PitStopsModel;
 import com.asiri.f1companion.Services.Models.QualifyingResultsModel;
 import com.asiri.f1companion.Services.Models.RaceResultsModel;
+import com.asiri.f1companion.UI.Activities.DriverInformationActivity;
 import com.asiri.f1companion.UI.Activities.ExtendedResultsActivity;
 import com.asiri.f1companion.UI.Activities.RaceResultActivity;
 import com.asiri.f1companion.UI.Activities.SplashActivity;
@@ -187,13 +192,80 @@ public class ExtendedDetailsService
         {
             @Override
             public void onResponse(Call<LapTimesModel> call, Response<LapTimesModel> response) {
-                dialog.finishedLoading(response.body().getLapTimes());
+                dialog.finishedLoadingLapTimes(response.body().getLapTimes());
             }
 
             @Override
             public void onFailure(Call<LapTimesModel> call, Throwable t) {
-                Snackbar.make(dialog.findViewById(R.id.spinner),"Error loading lap times",Snackbar.LENGTH_LONG).show();
-                dialog.finishedLoading(null);
+                dialog.finishedLoadingLapTimes(null);
+            }
+        });
+    }
+
+    public void getPitStops(String season, String round, String driverId,final ExtendedResultsActivity dialog)
+    {
+        Call<PitStopsModel> call=serviceInstance.getPitStopsAsync("/pitstops?id=" + driverId + "&season=" + season + "&round=" + round);
+        call.enqueue(new Callback<PitStopsModel>()
+        {
+            @Override
+            public void onResponse(Call<PitStopsModel> call, Response<PitStopsModel> response) {
+                dialog.finishedLoadingPitStops(response.body().getPitStops());
+            }
+
+            @Override
+            public void onFailure(Call<PitStopsModel> call, Throwable t) {
+                dialog.finishedLoadingPitStops(null);
+            }
+        });
+    }
+
+    public void getAllStatuses(String driverId, final DriverInformationActivity dialog)
+    {
+        Call<AllStatusesModel> call=serviceInstance.getAllStatuses("/alltimestatuses?id=" + driverId);
+        call.enqueue(new Callback<AllStatusesModel>()
+        {
+            @Override
+            public void onResponse(Call<AllStatusesModel> call, Response<AllStatusesModel> response) {
+                dialog.finishedLoadingStatuses(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<AllStatusesModel> call, Throwable t) {
+                dialog.finishedLoadingStatuses(null);
+            }
+        });
+    }
+
+    public void getAllSeasonsStatistics(String driverId, final DriverInformationActivity dialog)
+    {
+        Call<AllTimeStatisticsModel> call=serviceInstance.getAllTimeStatistics("/allseasons?id=" + driverId);
+        call.enqueue(new Callback<AllTimeStatisticsModel>()
+        {
+            @Override
+            public void onResponse(Call<AllTimeStatisticsModel> call, Response<AllTimeStatisticsModel> response) {
+                dialog.finishedLoadingAllSeasonsStatistics(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<AllTimeStatisticsModel> call, Throwable t) {
+                dialog.finishedLoadingAllSeasonsStatistics(null);
+            }
+        });
+    }
+
+    public void getCurrentSeason(String driverId, final DriverInformationActivity dialog)
+    {
+        Call<CurrentSeasonModel> call=serviceInstance.getCurrentSeason("/current?id=" + driverId);
+        call.enqueue(new Callback<CurrentSeasonModel>()
+        {
+            @Override
+            public void onResponse(Call<CurrentSeasonModel> call, Response<CurrentSeasonModel> response) {
+                dialog.finishedLoadingCurrentSeason(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<CurrentSeasonModel> call, Throwable t) {
+                dialog.finishedLoadingCurrentSeason(null);
             }
         });
     }

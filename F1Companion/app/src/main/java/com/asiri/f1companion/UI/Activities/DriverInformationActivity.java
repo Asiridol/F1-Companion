@@ -1,10 +1,12 @@
 package com.asiri.f1companion.UI.Activities;
 
+import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -20,6 +22,10 @@ import android.widget.Toast;
 
 import com.asiri.f1companion.Models.Driver;
 import com.asiri.f1companion.R;
+import com.asiri.f1companion.Services.ExtendedDetailsService;
+import com.asiri.f1companion.Services.Models.AllStatusesModel;
+import com.asiri.f1companion.Services.Models.AllTimeStatisticsModel;
+import com.asiri.f1companion.Services.Models.CurrentSeasonModel;
 import com.asiri.f1companion.UI.Fragments.DriverInfo.AllSeasonsFragment;
 import com.asiri.f1companion.UI.Fragments.DriverInfo.CurrentSeasonFragment;
 import com.asiri.f1companion.UI.Fragments.DriverInfo.FinishingStatusesFragment;
@@ -57,6 +63,14 @@ public class DriverInformationActivity extends AppCompatActivity {
     String driverId;
     Realm realm;
     Driver driver;
+
+    // service and service returns
+    final ExtendedDetailsService service=new ExtendedDetailsService();
+    public AllStatusesModel statusesModel;
+    public AllTimeStatisticsModel allTimeStatisticsModel;
+    public CurrentSeasonModel currentSeasonModel;
+
+    public ProgressDialog mDialog;
 
     DriverPagerAdapter adapter;
     ArrayList<Fragment> fragments=new ArrayList<Fragment>();
@@ -96,38 +110,73 @@ public class DriverInformationActivity extends AppCompatActivity {
         realm= Realm.getInstance(getBaseContext());
         driver=realm.where(Driver.class).equalTo("driverId",driverId).findFirst();
 
-        driverName.setText(driver.getGivenName() + " " + driver.getFamilyName());
+        driverName.setText(driver.getGivenName() + " " + driver.getFamilyName() + " - " + driver.getCode() + "(" + driver.getPermanentNumber() + ")");
         driverDOB.setText("Date of birth : " + driver.getDateOfBirth());
         driverNationality.setText("Nationality : " + driver.getNationality());
 
-        if(driver.getDriverImage()==null)
+        AsyncTask getImage=new DriverImageGetter().execute(driver.getUrl());
+
+        mDialog=new ProgressDialog(this);
+        mDialog.setTitle("Loading ...");
+        mDialog.setMessage("Loading Statuses");
+        mDialog.setCancelable(false);
+        mDialog.show();
+        service.getAllStatuses(driverId, this);
+    }
+
+    public void finishedLoadingStatuses(AllStatusesModel model)
+    {
+        if(model!=null) {
+            this.statusesModel = model;
+            mDialog.setMessage("Loading All Seasons Statistics");
+            service.getAllSeasonsStatistics(driverId, this);
+        }else
         {
-            AsyncTask getImage=new DriverImageGetter().execute(driver.getUrl());
+            Snackbar.make(this.getCurrentFocus(),"Error Loading finishing statuses",Snackbar.LENGTH_LONG).show();
+            this.finish();
+        }
+    }
+
+    public void finishedLoadingAllSeasonsStatistics(AllTimeStatisticsModel model)
+    {
+        if(model!=null) {
+            this.allTimeStatisticsModel = model;
+            System.out.println("All sesasons : " + model.getSeasons().length);
+            mDialog.setMessage("Loading Current Season Data");
+            service.getCurrentSeason(driverId,this);
         }
         else
         {
-            Bitmap bmp;
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inMutable = true;
-            bmp = BitmapFactory.decodeByteArray(driver.getDriverImage(), 0, driver.getDriverImage().length, options);
-            //driverImage.setBackground(null);
-            driverImage.setImageBitmap(CircleImage.getRoundBitmap(bmp));
+            Snackbar.make(this.getCurrentFocus(),"Error loading All Seasons statistics",Snackbar.LENGTH_LONG).show();
+            this.finish();
         }
+    }
 
-        Fragment tab1= FinishingStatusesFragment.newInstance("","");
-        Fragment tab2= AllSeasonsFragment.newInstance("","");
-        Fragment tab3= CurrentSeasonFragment.newInstance("","");
+    public void finishedLoadingCurrentSeason(CurrentSeasonModel model)
+    {
+        if(model!=null) {
+            this.currentSeasonModel = model;
+            mDialog.dismiss();
 
-        fragments.add(tab1);
-        fragments.add(tab2);
-        fragments.add(tab3);
+            Fragment tab1 = FinishingStatusesFragment.newInstance();
+            Fragment tab2 = AllSeasonsFragment.newInstance();
+            Fragment tab3 = CurrentSeasonFragment.newInstance();
 
-        adapter=new DriverPagerAdapter(getSupportFragmentManager(),titles,titles.length,fragments);
-        pager.setAdapter(adapter);
-        pager.setPageTransformer(true, new DepthPageTransformer());
-        pager.clearAnimation();
-        pager.setOffscreenPageLimit(3);
-        tablayout.setupWithViewPager(pager);
+            fragments.add(tab1);
+            fragments.add(tab2);
+            fragments.add(tab3);
+
+            adapter = new DriverPagerAdapter(getSupportFragmentManager(), titles, titles.length, fragments);
+            pager.setAdapter(adapter);
+            pager.setPageTransformer(true, new DepthPageTransformer());
+            pager.clearAnimation();
+            pager.setOffscreenPageLimit(3);
+            tablayout.setupWithViewPager(pager);
+        }else
+        {
+            Snackbar.make(this.getCurrentFocus(),"Error Loading current season statistis",Snackbar.LENGTH_LONG).show();
+            this.finish();
+        }
     }
 
     // This class is used to obtain drivers photo from wikipedia link
@@ -160,7 +209,6 @@ public class DriverInformationActivity extends AppCompatActivity {
                 Elements description = document.select("a[class=image] img[src]");
                 Elements image=description.select("img");
                 String imageLink= image.attr("src");
-                System.out.println("Image Link : " + image.toString());
 
                 StringTokenizer tokenizer=null;
 
@@ -171,7 +219,6 @@ public class DriverInformationActivity extends AppCompatActivity {
 
                 imageLink="https:" + imageLink;
 
-                System.out.println(imageLink);
                 InputStream in = new java.net.URL(imageLink).openStream();
                 mPic= BitmapFactory.decodeStream(in);
 
@@ -193,7 +240,12 @@ public class DriverInformationActivity extends AppCompatActivity {
         {
             if(result==null)
             {
-                Toast.makeText(getBaseContext(), "Error loading Driver Photo", Toast.LENGTH_LONG).show();
+                Bitmap bmp;
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inMutable = true;
+                bmp = BitmapFactory.decodeByteArray(driver.getDriverImage(), 0, driver.getDriverImage().length, options);
+                //driverImage.setBackground(null);
+                driverImage.setImageBitmap(CircleImage.getRoundBitmap(bmp));
             }
             else {
                 //driverImage.setBackground(null);
@@ -205,8 +257,6 @@ public class DriverInformationActivity extends AppCompatActivity {
                 byte[] b = byteArrayBitmapStream.toByteArray();
                 driver.setDriverImage(b);
                 realm.commitTransaction();
-
-                Toast.makeText(getBaseContext(),"Image Loaded",Toast.LENGTH_LONG).show();
             }
         }
     }
