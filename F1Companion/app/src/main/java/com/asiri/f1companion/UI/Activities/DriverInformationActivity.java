@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.asiri.f1companion.Models.Driver;
+import com.asiri.f1companion.R;
 import com.asiri.f1companion.Services.ExtendedDetailsService;
 import com.asiri.f1companion.Services.Models.AllStatusesModel;
 import com.asiri.f1companion.Services.Models.AllTimeStatisticsModel;

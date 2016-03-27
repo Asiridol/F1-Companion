@@ -5,6 +5,8 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
+
+import com.asiri.f1companion.R;
 import com.asiri.f1companion.Services.InitialLoaderService;
 
 import io.realm.Realm;

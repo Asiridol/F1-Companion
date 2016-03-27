@@ -18,6 +18,7 @@ import android.widget.ViewFlipper;
 import com.asiri.f1companion.Models.Constructor;
 import com.asiri.f1companion.Models.Leaderboard;
 import com.asiri.f1companion.Models.Race;
+import com.asiri.f1companion.R;
 import com.asiri.f1companion.Services.ExtendedDetailsService;
 import com.asiri.f1companion.UI.Activities.DriverInformationActivity;
 import com.yalantis.phoenix.PullToRefreshView;
