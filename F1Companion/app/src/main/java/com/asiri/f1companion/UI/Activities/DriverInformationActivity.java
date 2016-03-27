@@ -15,13 +15,13 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.asiri.f1companion.Models.Driver;
-import com.asiri.f1companion.R;
 import com.asiri.f1companion.Services.ExtendedDetailsService;
 import com.asiri.f1companion.Services.Models.AllStatusesModel;
 import com.asiri.f1companion.Services.Models.AllTimeStatisticsModel;
@@ -110,7 +110,7 @@ public class DriverInformationActivity extends AppCompatActivity {
         realm= Realm.getInstance(getBaseContext());
         driver=realm.where(Driver.class).equalTo("driverId",driverId).findFirst();
 
-        driverName.setText(driver.getGivenName() + " " + driver.getFamilyName() + " - " + driver.getCode() + "(" + driver.getPermanentNumber() + ")");
+        driverName.setText(driver.getGivenName() + " " + driver.getFamilyName() + " - " + driver.getCode() + " (" + driver.getPermanentNumber() + ")");
         driverDOB.setText("Date of birth : " + driver.getDateOfBirth());
         driverNationality.setText("Nationality : " + driver.getNationality());
 
@@ -295,5 +295,10 @@ class DriverPagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public int getCount() {
         return NumbOfTabs;
+    }
+
+    @Override
+    public void destroyItem(View container, int position, Object object) {
+        ((ViewPager) container).removeView((View) object);
     }
 }

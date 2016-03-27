@@ -20,7 +20,6 @@ import android.view.View;
 import android.view.WindowManager;
 
 import com.asiri.f1companion.Models.Race;
-import com.asiri.f1companion.R;
 import com.asiri.f1companion.Services.ExtendedDetailsService;
 import com.asiri.f1companion.Services.Models.QualifyingResultsModel;
 import com.asiri.f1companion.Services.Models.RaceResultsModel;

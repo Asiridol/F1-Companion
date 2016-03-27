@@ -13,8 +13,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.WindowManager;
-
-import com.asiri.f1companion.R;
 import com.asiri.f1companion.UI.Support.Animation.DepthPageTransformer;
 import com.asiri.f1companion.UI.Fragments.DriversFragment;
 import com.asiri.f1companion.UI.Fragments.HomeFragment;

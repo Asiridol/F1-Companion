@@ -26,7 +26,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
-import com.asiri.f1companion.R;
 import com.asiri.f1companion.Services.ExtendedDetailsService;
 import com.asiri.f1companion.Services.Models.LapTimesModel;
 import com.asiri.f1companion.Services.Models.PitStopsModel;

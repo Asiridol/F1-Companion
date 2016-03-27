@@ -21,8 +21,10 @@ import com.asiri.f1companion.UI.Activities.DriverInformationActivity;
 import org.jsoup.Connection;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.TreeMap;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -67,26 +69,36 @@ public class FinishingStatusesFragment extends Fragment {
 
         this.data = ((DriverInformationActivity) getActivity()).statusesModel;
         if(this.data!=null) {
+
+            //sort first
+
+            String[] keys=new String[data.getFinished()[0].keySet().size()];
+            data.getFinished()[0].keySet().toArray(keys);
+
+            TreeMap<String,Integer> sorted=new TreeMap<String,Integer>();
+            sorted.putAll(data.getFinished()[0]);
+
             UIList.add("Finished");
 
-            HashMap<String, Integer>[] inner = data.getFinished();
-            Iterator it = inner[0].entrySet().iterator();
+            Iterator it = sorted.entrySet().iterator();
             while (it.hasNext()) {
                 HashMap.Entry<String, Integer> pair = (HashMap.Entry<String, Integer>) it.next();
                 UIList.add(new KeyValuePair(pair.getKey(), pair.getValue()));
             }
 
-            UIList.add("Car Faults");
-            inner = data.getCarFaults();
-            it = inner[0].entrySet().iterator();
+            sorted.clear();
+            sorted.putAll(data.getDriverFaults()[0]);
+            UIList.add("Driver Related");
+            it = sorted.entrySet().iterator();
             while (it.hasNext()) {
                 HashMap.Entry<String, Integer> pair = (HashMap.Entry<String, Integer>) it.next();
                 UIList.add(new KeyValuePair(pair.getKey(), pair.getValue()));
             }
 
-            UIList.add("Driver Faults");
-            inner = data.getDriverFaults();
-            it = inner[0].entrySet().iterator();
+            sorted.clear();
+            sorted.putAll(data.getCarFaults()[0]);
+            UIList.add("Car Related");
+            it = sorted.entrySet().iterator();
             while (it.hasNext()) {
                 HashMap.Entry<String, Integer> pair = (HashMap.Entry<String, Integer>) it.next();
                 UIList.add(new KeyValuePair(pair.getKey(), pair.getValue()));
@@ -99,7 +111,7 @@ public class FinishingStatusesFragment extends Fragment {
         }
         else
         {
-            getActivity().recreate();
+            //getActivity().recreate();
         }
     }
 

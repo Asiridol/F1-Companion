@@ -85,18 +85,10 @@ public class AllSeasonsFragment extends Fragment {
         }
         else
         {
-            ((DriverInformationActivity)getActivity()).recreate();
+            //((DriverInformationActivity)getActivity()).recreate();
         }
 
         pager.setAdapter(new AllSeasonsPagerAdapter(getActivity()));
-
-        pager.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                pager.setCurrentItem(pager.getCurrentItem());
-                return true;
-            }
-        });
 
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -279,5 +271,11 @@ class AllSeasonsPagerAdapter extends PagerAdapter
         {
             return "Data List";
         }
+    }
+
+    @Override
+    public void destroyItem(View container, int position, Object object) {
+        ((ViewPager) container).removeView((View) object);
+        ((ViewPager) container).addView((View) object);
     }
 }

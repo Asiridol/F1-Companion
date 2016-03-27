@@ -4,11 +4,11 @@ android {
     compileSdkVersion 23
     buildToolsVersion "23.0.1"
     defaultConfig {
-        applicationId 'com.asiri.fone.companion'
+        applicationId 'com.fone.companion'
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 4
-        versionName "1.0.3"
+        versionCode 1
+        versionName "0.0.1"
         multiDexEnabled true
     }
     buildTypes {

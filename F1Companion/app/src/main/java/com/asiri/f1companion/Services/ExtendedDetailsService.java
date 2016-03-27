@@ -6,7 +6,6 @@ import android.support.design.widget.Snackbar;
 import com.asiri.f1companion.Commons.Defaults;
 import com.asiri.f1companion.Models.Driver;
 import com.asiri.f1companion.Models.Leaderboard;
-import com.asiri.f1companion.R;
 import com.asiri.f1companion.Services.Interfaces.Fan1ServerInterface;
 import com.asiri.f1companion.Services.Models.AllStatusesModel;
 import com.asiri.f1companion.Services.Models.AllTimeStatisticsModel;

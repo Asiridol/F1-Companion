@@ -1,22 +1,22 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.asiri.f1companion.UI.Fragments.DriverInfo.AllSeasonsFragment"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:padding="5dp">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="188dp">
+        android:layout_marginTop="188dp"
+        android:paddingTop="5dp">
         <com.luseen.luseenbottomnavigation.BottomNavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
             android:elevation="2dp"/>
-        <android.support.v4.view.ViewPager
+        <com.asiri.f1companion.UI.Support.NonSwipeableViewPager
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/allSeasonsPager">
@@ -29,13 +29,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                    app:behavior_overlapTop="2dp"/>
+                    app:behavior_overlapTop="2dp"
+                    />
             </LinearLayout>
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/pageTwo"
-                android:paddingTop="5dp">
+                android:paddingTop="10dp">
                     <com.hrules.charter.CharterYLabels
                         android:id="@+id/charter_line_YMarkerAllSeasons"
                         android:layout_width="10dp"
@@ -53,6 +54,6 @@
                     android:layout_below="@id/charter_lineAllSeasons"
                     android:paddingLeft="4dp"/>
             </RelativeLayout>
-        </android.support.v4.view.ViewPager>
+        </com.asiri.f1companion.UI.Support.NonSwipeableViewPager>
     </LinearLayout>
 </LinearLayout>
