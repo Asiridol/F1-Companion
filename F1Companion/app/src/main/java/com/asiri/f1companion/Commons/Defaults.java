@@ -5,6 +5,6 @@ package com.asiri.f1companion.Commons;
  */
 public abstract class Defaults {
 
-    public static String BASEURL_SERVER="http://27.32.233.1:8080";
+    public static String BASEURL_SERVER="http://27.32.233.1:8090";
     public static String URL_NEWS="http://feeds2.feedburner.com/f1fanatic";
 }

@@ -133,7 +133,7 @@ public class DriverInformationActivity extends AppCompatActivity {
             service.getAllSeasonsStatistics(driverId, this);
         }else
         {
-            Snackbar.make(this.getCurrentFocus(),"Error Loading finishing statuses",Snackbar.LENGTH_LONG).show();
+            Toast.makeText(getBaseContext(),"Error loading seasons statistics",Toast.LENGTH_LONG).show();
             this.finish();
         }
     }
@@ -148,7 +148,7 @@ public class DriverInformationActivity extends AppCompatActivity {
         }
         else
         {
-            Snackbar.make(this.getCurrentFocus(),"Error loading All Seasons statistics",Snackbar.LENGTH_LONG).show();
+            Toast.makeText(getBaseContext(), "Error loading seasons statistics", Toast.LENGTH_LONG).show();
             this.finish();
         }
     }
@@ -175,7 +175,7 @@ public class DriverInformationActivity extends AppCompatActivity {
             tablayout.setupWithViewPager(pager);
         }else
         {
-            Snackbar.make(this.getCurrentFocus(),"Error Loading current season statistis",Snackbar.LENGTH_LONG).show();
+            Toast.makeText(getBaseContext(), "Error loading seasons statistics", Toast.LENGTH_LONG).show();
             this.finish();
         }
     }

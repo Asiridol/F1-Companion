@@ -206,12 +206,12 @@ class RaceListAdapter extends RecyclerView.Adapter<RaceListAdapter.ViewHolder> i
             raceDate=cal.getTime();
             if(today.after(raceDate))
             {
-                holder.parent.setBackgroundColor(Color.LTGRAY);
+                holder.parent.setCardBackgroundColor(Color.LTGRAY);
                 holder.finished=true;
             }
             else
             {
-                holder.parent.setBackgroundColor(Color.WHITE);
+                holder.parent.setCardBackgroundColor(Color.WHITE);
             }
         } catch (ParseException e) {
             e.printStackTrace();
