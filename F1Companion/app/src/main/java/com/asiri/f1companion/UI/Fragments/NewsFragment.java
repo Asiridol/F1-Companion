@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -231,7 +233,13 @@ class NewsListAdapter extends ArrayAdapter implements View.OnClickListener
 
         holder.tTitle.setText(items.get(i).getTitle());
         String text= new StringTokenizer(items.get(i).getDescription(),"\n").nextToken();
-        holder.tDesc.setText(Html.fromHtml(text));
+        holder.tDesc.setWebViewClient(new WebViewClient());
+        holder.tDesc.loadDataWithBaseURL(null,(Html.fromHtml(text)).toString(), "text/html", "UTF-8", null);
+        holder.tDesc.setBackgroundColor(Color.TRANSPARENT);
+        holder.tDesc.setEnabled(false);
+        holder.tDesc.setTag(holder);
+        holder.tDesc.setOnClickListener(this);
+        //holder.tDesc.setText(Html.fromHtml(text));
 
         return view;
     }
@@ -249,7 +257,7 @@ class NewsListAdapter extends ArrayAdapter implements View.OnClickListener
     static class ViewHolder
     {
         @Bind(R.id.newsTitle)TextView tTitle;
-        @Bind(R.id.newsDesc)TextView tDesc;
+        @Bind(R.id.newsDesc)WebView tDesc;
         @Bind(R.id.newsDate)TextView tDate;
         int i;
 

@@ -27,8 +27,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.asiri.f1companion.Commons.Defaults;
 import com.asiri.f1companion.R;
 import com.asiri.f1companion.Services.ExtendedDetailsService;
+import com.asiri.f1companion.Services.Interfaces.LoadDataListener;
 import com.asiri.f1companion.Services.Models.LapTimesModel;
 import com.asiri.f1companion.Services.Models.PitStopsModel;
 import com.hrules.charter.CharterLine;
@@ -48,7 +50,7 @@ import java.util.StringTokenizer;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class ExtendedResultsActivity extends AppCompatActivity
+public class ExtendedResultsActivity extends AppCompatActivity implements LoadDataListener
 {
     LapTimesModel.LapTime[] lapTimes;
     PitStopsModel.PitStop[] pitStops;
@@ -135,49 +137,6 @@ public class ExtendedResultsActivity extends AppCompatActivity
         }
 
         service.getLapTimes(season, round, driverId, this);
-    }
-
-    public void finishedLoadingLapTimes(LapTimesModel.LapTime[] lapTimes)
-    {
-        if(lapTimes==null)
-        {
-            Toast.makeText(this, "Error loading Lap times", Toast.LENGTH_LONG).show();
-            this.finish();
-        }
-        else
-        {
-            this.lapTimes = lapTimes;
-
-            UIList.add("Lap Times");
-            for (LapTimesModel.LapTime lapTime:lapTimes){
-                UIList.add(lapTime);
-            }
-
-            service.getPitStops(season, round, driverId, this);
-        }
-
-    }
-
-    public void finishedLoadingPitStops(PitStopsModel.PitStop[] pitStops)
-    {
-        if(pitStops==null)
-        {
-            Toast.makeText(this, "Error loading Pit stops", Toast.LENGTH_LONG).show();
-            this.finish();
-        }
-        else {
-            this.pitStops = pitStops;
-            UIList.add("Pit Stops");
-            for (PitStopsModel.PitStop pitStop:pitStops){
-                UIList.add(pitStop);
-            }
-
-            for (Object object:UIList) {
-                System.out.println("Class : " + object.getClass());
-            }
-
-            finishLoadingUI();
-        }
     }
 
     public void finishLoadingUI()
@@ -309,6 +268,60 @@ public class ExtendedResultsActivity extends AppCompatActivity
         {
             this.finish();
         }
+    }
+
+    @Override
+    public void finishedLoadingData() {
+
+    }
+
+    @Override
+    public void finishedLoadingDataWith(Object object, Defaults.RequestType requestType) {
+        if(requestType==Defaults.RequestType.PitStops)
+        {
+            PitStopsModel.PitStop[] pitStops=(PitStopsModel.PitStop[])object;
+            if(pitStops==null)
+            {
+                Toast.makeText(this, "Error loading Pit stops", Toast.LENGTH_LONG).show();
+                this.finish();
+            }
+            else {
+                this.pitStops = pitStops;
+                UIList.add("Pit Stops");
+
+                for (PitStopsModel.PitStop pitStop:pitStops){
+                    UIList.add(pitStop);
+                }
+
+                finishLoadingUI();
+            }
+        }
+        else if(requestType==Defaults.RequestType.LapTimes)
+        {
+            LapTimesModel.LapTime[] lapTimes=(LapTimesModel.LapTime[])object;
+            if(lapTimes==null)
+            {
+                Toast.makeText(this, "Error loading Lap times", Toast.LENGTH_LONG).show();
+                this.finish();
+            }
+            else
+            {
+                this.lapTimes = lapTimes;
+
+                UIList.add("Lap Times");
+                for (LapTimesModel.LapTime lapTime:lapTimes){
+                    UIList.add(lapTime);
+                }
+
+                service.getPitStops(season, round, driverId, this);
+            }
+
+        }
+    }
+
+    @Override
+    public void finishedLoadingDataWithError(String error) {
+
     }
 }
 

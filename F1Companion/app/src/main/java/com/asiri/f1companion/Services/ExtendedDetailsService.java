@@ -7,6 +7,7 @@ import com.asiri.f1companion.Commons.Defaults;
 import com.asiri.f1companion.Models.Driver;
 import com.asiri.f1companion.Models.Leaderboard;
 import com.asiri.f1companion.Services.Interfaces.Fan1ServerInterface;
+import com.asiri.f1companion.Services.Interfaces.LoadDataListener;
 import com.asiri.f1companion.Services.Models.AllStatusesModel;
 import com.asiri.f1companion.Services.Models.AllTimeStatisticsModel;
 import com.asiri.f1companion.Services.Models.CurrentSeasonModel;
@@ -56,47 +57,44 @@ public class ExtendedDetailsService
         serviceInstance=adapter.create(Fan1ServerInterface.class);
     }
 
-    public void getRaceResults(final String season, final String round, final RaceResultActivity activity)
+    public void getRaceResults(final String season, final String round, final LoadDataListener loadDataListener)
     {
         Call<RaceResultsModel> call=serviceInstance.getRaceResultsAsync("/raceresults?season=" + season + "&round=" + round);
         call.enqueue(new Callback<RaceResultsModel>() {
             @Override
             public void onResponse(Call<RaceResultsModel> call, Response<RaceResultsModel> response) {
 
-                activity.finishedLoadingRaceResults(response.body());
+                loadDataListener.finishedLoadingDataWith(response.body(),Defaults.RequestType.RaceResults);
             }
 
             @Override
             public void onFailure(Call<RaceResultsModel> call, Throwable t) {
-                activity.mDialog.dismiss();
-                Snackbar.make(activity.getCurrentFocus(), "Error loading Race Results", Snackbar.LENGTH_LONG).show();
+                loadDataListener.finishedLoadingDataWithError("Error loading Race Results");
                 t.printStackTrace();
             }
         });
     }
 
-    public void getQualifyingResults(String season, String round, final RaceResultActivity activity)
+    public void getQualifyingResults(String season, String round, final LoadDataListener loadDataListener)
     {
         Call<QualifyingResultsModel> call=serviceInstance.getQualifyingResutlsAsync("/qualifyingresults?season=" + season + "&round=" + round);
         call.enqueue(new Callback<QualifyingResultsModel>() {
             @Override
             public void onResponse(Call<QualifyingResultsModel> call, Response<QualifyingResultsModel> response) {
-                activity.finishedLoadingQualifyingResults(response.body());
+                loadDataListener.finishedLoadingDataWith(response.body(),Defaults.RequestType.QualifyingResults);
             }
 
             @Override
             public void onFailure(Call<QualifyingResultsModel> call, Throwable t) {
-                activity.mDialog.dismiss();
-                Snackbar.make(activity.getCurrentFocus(), "Error loading Qualifying Results", Snackbar.LENGTH_LONG).show();
+                loadDataListener.finishedLoadingDataWithError("Error loading qualifying results");
                 t.printStackTrace();
             }
         });
     }
 
-    public void loadLeaderboard(final SplashActivity activity)
+    public void loadLeaderboard(Context context,final LoadDataListener loadDataListener)
     {
-        realm=Realm.getInstance(activity.getBaseContext());
-        activity.mDialog.setMessage("Updating Leaderboard");
+        realm=Realm.getInstance(context);
 
         Call<LeaderboardsModel> call=serviceInstance.getLeaderboardAsync();
 
@@ -119,9 +117,7 @@ public class ExtendedDetailsService
                 }
 
                 realm.commitTransaction();
-                activity.mDialog.dismiss();
-
-                activity.loadFinished();
+                loadDataListener.finishedLoadingData();
             }
 
             public void checkRealm()
@@ -136,12 +132,12 @@ public class ExtendedDetailsService
 
             @Override
             public void onFailure(Call<LeaderboardsModel> call, Throwable t) {
-                System.out.println(t.toString());
+                loadDataListener.finishedLoadingDataWithError("Error updating leaderboard");
             }
         });
     }
 
-    public void updateLeaderboard(Context context)
+    public void updateLeaderboard(Context context, final LoadDataListener loadDataListener)
     {
         realm=Realm.getInstance(context);
         Call<LeaderboardsModel> call=serviceInstance.getLeaderboardAsync();
@@ -184,87 +180,87 @@ public class ExtendedDetailsService
         });
     }
 
-    public void getLapTimes(String season, String round, String driverId,final ExtendedResultsActivity dialog)
+    public void getLapTimes(String season, String round, String driverId,final LoadDataListener loadDataListener)
     {
         Call<LapTimesModel> call=serviceInstance.getLapTimesAsync("/laptimes?id=" + driverId + "&season=" + season + "&round=" + round);
         call.enqueue(new Callback<LapTimesModel>()
         {
             @Override
             public void onResponse(Call<LapTimesModel> call, Response<LapTimesModel> response) {
-                dialog.finishedLoadingLapTimes(response.body().getLapTimes());
+                loadDataListener.finishedLoadingDataWith(response.body().getLapTimes(),Defaults.RequestType.LapTimes);
             }
 
             @Override
             public void onFailure(Call<LapTimesModel> call, Throwable t) {
-                dialog.finishedLoadingLapTimes(null);
+                loadDataListener.finishedLoadingDataWithError("Error loading laptimes");
             }
         });
     }
 
-    public void getPitStops(String season, String round, String driverId,final ExtendedResultsActivity dialog)
+    public void getPitStops(String season, String round, String driverId,final LoadDataListener loadDataListener)
     {
         Call<PitStopsModel> call=serviceInstance.getPitStopsAsync("/pitstops?id=" + driverId + "&season=" + season + "&round=" + round);
         call.enqueue(new Callback<PitStopsModel>()
         {
             @Override
             public void onResponse(Call<PitStopsModel> call, Response<PitStopsModel> response) {
-                dialog.finishedLoadingPitStops(response.body().getPitStops());
+                loadDataListener.finishedLoadingDataWith(response.body().getPitStops(),Defaults.RequestType.PitStops);
             }
 
             @Override
             public void onFailure(Call<PitStopsModel> call, Throwable t) {
-                dialog.finishedLoadingPitStops(null);
+                loadDataListener.finishedLoadingDataWithError("Error loading pitstops");
             }
         });
     }
 
-    public void getAllStatuses(String driverId, final DriverInformationActivity dialog)
+    public void getAllStatuses(String driverId, final LoadDataListener loadDataListener)
     {
         Call<AllStatusesModel> call=serviceInstance.getAllStatuses("/alltimestatuses?id=" + driverId);
         call.enqueue(new Callback<AllStatusesModel>()
         {
             @Override
             public void onResponse(Call<AllStatusesModel> call, Response<AllStatusesModel> response) {
-                dialog.finishedLoadingStatuses(response.body());
+                loadDataListener.finishedLoadingDataWith(response.body(),Defaults.RequestType.AllStatuses);
             }
 
             @Override
             public void onFailure(Call<AllStatusesModel> call, Throwable t) {
-                dialog.finishedLoadingStatuses(null);
+                loadDataListener.finishedLoadingDataWithError("Error loading time statuses");
             }
         });
     }
 
-    public void getAllSeasonsStatistics(String driverId, final DriverInformationActivity dialog)
+    public void getAllSeasonsStatistics(String driverId, final LoadDataListener loadDataListener)
     {
         Call<AllTimeStatisticsModel> call=serviceInstance.getAllTimeStatistics("/allseasons?id=" + driverId);
         call.enqueue(new Callback<AllTimeStatisticsModel>()
         {
             @Override
             public void onResponse(Call<AllTimeStatisticsModel> call, Response<AllTimeStatisticsModel> response) {
-                dialog.finishedLoadingAllSeasonsStatistics(response.body());
+                loadDataListener.finishedLoadingDataWith(response.body(),Defaults.RequestType.AllSeasonsStatistics);
             }
 
             @Override
             public void onFailure(Call<AllTimeStatisticsModel> call, Throwable t) {
-                dialog.finishedLoadingAllSeasonsStatistics(null);
+                loadDataListener.finishedLoadingDataWithError("Error loading all seasons information");
             }
         });
     }
 
-    public void getCurrentSeason(String driverId, final DriverInformationActivity dialog)
+    public void getCurrentSeason(String driverId, final LoadDataListener loadDataListener)
     {
         Call<CurrentSeasonModel> call=serviceInstance.getCurrentSeason("/current?id=" + driverId);
         call.enqueue(new Callback<CurrentSeasonModel>()
         {
             @Override
             public void onResponse(Call<CurrentSeasonModel> call, Response<CurrentSeasonModel> response) {
-                dialog.finishedLoadingCurrentSeason(response.body());
+                loadDataListener.finishedLoadingDataWith(response.body(),Defaults.RequestType.CurrentSeason);
             }
 
             @Override
             public void onFailure(Call<CurrentSeasonModel> call, Throwable t) {
-                dialog.finishedLoadingCurrentSeason(null);
+                loadDataListener.finishedLoadingDataWithError("Error loading current season information");
             }
         });
     }

@@ -15,11 +15,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.asiri.f1companion.Commons.Defaults;
 import com.asiri.f1companion.Models.Constructor;
 import com.asiri.f1companion.Models.Leaderboard;
 import com.asiri.f1companion.Models.Race;
 import com.asiri.f1companion.R;
 import com.asiri.f1companion.Services.ExtendedDetailsService;
+import com.asiri.f1companion.Services.Interfaces.LoadDataListener;
 import com.asiri.f1companion.UI.Activities.DriverInformationActivity;
 import com.yalantis.phoenix.PullToRefreshView;
 
@@ -43,7 +45,7 @@ import io.realm.RealmResults;
  * Use the {@link HomeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements LoadDataListener{
 
     @Bind(R.id.pull_to_refresh_leaderboard) PullToRefreshView mPullToRefreshView;
     @Bind(R.id.leader_recycler) RecyclerView mRecyclerView;
@@ -114,7 +116,7 @@ public class HomeFragment extends Fragment {
                     public void run() {
                         leaders=null;
                         mPullToRefreshView.setRefreshing(false);
-                        new ExtendedDetailsService().updateLeaderboard(getActivity().getBaseContext());
+                        new ExtendedDetailsService().updateLeaderboard(getActivity().getBaseContext(),HomeFragment.this);
                         mAdapter.notifyDataSetChanged();
                     }
                 }, 3000);
@@ -137,6 +139,21 @@ public class HomeFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void finishedLoadingData() {
+
+    }
+
+    @Override
+    public void finishedLoadingDataWith(Object object, Defaults.RequestType requestType) {
+
+    }
+
+    @Override
+    public void finishedLoadingDataWithError(String error) {
+
     }
 
     public interface OnFragmentInteractionListener {

@@ -6,15 +6,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.asiri.f1companion.Commons.Defaults;
 import com.asiri.f1companion.R;
 import com.asiri.f1companion.Services.InitialLoaderService;
+import com.asiri.f1companion.Services.Interfaces.LoadDataListener;
 
 import io.realm.Realm;
 
 /**
  * Created by asiri on 3/21/2016.
  */
-public class SplashActivity extends Activity{
+public class SplashActivity extends Activity implements LoadDataListener{
 
     TextView tMessage;
     public ProgressDialog mDialog;
@@ -38,13 +40,23 @@ public class SplashActivity extends Activity{
             loader.loadDrivers();
         }else
         {
-            loadFinished();
+            this.finishedLoadingData();
         }
     }
 
-    public void loadFinished()
-    {
+    @Override
+    public void finishedLoadingData() {
         Intent intent=new Intent(getApplicationContext(),HomeActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    public void finishedLoadingDataWith(Object object, Defaults.RequestType requestType) {
+
+    }
+
+    @Override
+    public void finishedLoadingDataWithError(String error) {
+
     }
 }

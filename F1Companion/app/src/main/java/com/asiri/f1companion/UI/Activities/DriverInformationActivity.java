@@ -21,9 +21,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.asiri.f1companion.Commons.Defaults;
 import com.asiri.f1companion.Models.Driver;
 import com.asiri.f1companion.R;
 import com.asiri.f1companion.Services.ExtendedDetailsService;
+import com.asiri.f1companion.Services.Interfaces.LoadDataListener;
 import com.asiri.f1companion.Services.Models.AllStatusesModel;
 import com.asiri.f1companion.Services.Models.AllTimeStatisticsModel;
 import com.asiri.f1companion.Services.Models.CurrentSeasonModel;
@@ -51,7 +53,7 @@ import io.realm.Realm;
 /**
  * Created by asiri on 3/21/2016.
  */
-public class DriverInformationActivity extends AppCompatActivity {
+public class DriverInformationActivity extends AppCompatActivity implements LoadDataListener{
 
     @Bind(R.id.driverImage)ImageView driverImage;
     @Bind(R.id.driverName)TextView driverName;
@@ -125,19 +127,6 @@ public class DriverInformationActivity extends AppCompatActivity {
         service.getAllStatuses(driverId, this);
     }
 
-    public void finishedLoadingStatuses(AllStatusesModel model)
-    {
-        if(model!=null) {
-            this.statusesModel = model;
-            mDialog.setMessage("Loading All Seasons Statistics");
-            service.getAllSeasonsStatistics(driverId, this);
-        }else
-        {
-            Toast.makeText(getBaseContext(),"Error loading seasons statistics",Toast.LENGTH_LONG).show();
-            this.finish();
-        }
-    }
-
     public void finishedLoadingAllSeasonsStatistics(AllTimeStatisticsModel model)
     {
         if(model!=null) {
@@ -153,31 +142,55 @@ public class DriverInformationActivity extends AppCompatActivity {
         }
     }
 
-    public void finishedLoadingCurrentSeason(CurrentSeasonModel model)
-    {
-        if(model!=null) {
-            this.currentSeasonModel = model;
-            mDialog.dismiss();
+    @Override
+    public void finishedLoadingData() {
 
-            Fragment tab1 = FinishingStatusesFragment.newInstance();
-            Fragment tab2 = AllSeasonsFragment.newInstance();
-            Fragment tab3 = CurrentSeasonFragment.newInstance();
+    }
 
-            fragments.add(tab1);
-            fragments.add(tab2);
-            fragments.add(tab3);
-
-            adapter = new DriverPagerAdapter(getSupportFragmentManager(), titles, titles.length, fragments);
-            pager.setAdapter(adapter);
-            pager.setPageTransformer(true, new DepthPageTransformer());
-            pager.clearAnimation();
-            pager.setOffscreenPageLimit(3);
-            tablayout.setupWithViewPager(pager);
-        }else
+    @Override
+    public void finishedLoadingDataWith(Object object, Defaults.RequestType requestType) {
+        if(requestType==Defaults.RequestType.AllStatuses) {
+            AllStatusesModel model = (AllStatusesModel) object;
+            if (model != null) {
+                this.statusesModel = model;
+                mDialog.setMessage("Loading All Seasons Statistics");
+                service.getAllSeasonsStatistics(driverId, this);
+            } else {
+                this.finishedLoadingDataWithError("Error");
+            }
+        }else if(requestType==Defaults.RequestType.CurrentSeason)
         {
-            Toast.makeText(getBaseContext(), "Error loading seasons statistics", Toast.LENGTH_LONG).show();
-            this.finish();
+            CurrentSeasonModel model=(CurrentSeasonModel)object;
+            if(model!=null) {
+                this.currentSeasonModel = model;
+                mDialog.dismiss();
+
+                Fragment tab1 = FinishingStatusesFragment.newInstance();
+                Fragment tab2 = AllSeasonsFragment.newInstance();
+                Fragment tab3 = CurrentSeasonFragment.newInstance();
+
+                fragments.add(tab1);
+                fragments.add(tab2);
+                fragments.add(tab3);
+
+                adapter = new DriverPagerAdapter(getSupportFragmentManager(), titles, titles.length, fragments);
+                pager.setAdapter(adapter);
+                pager.setPageTransformer(true, new DepthPageTransformer());
+                pager.clearAnimation();
+                pager.setOffscreenPageLimit(3);
+                tablayout.setupWithViewPager(pager);
+            }else
+            {
+                Toast.makeText(getBaseContext(), "Error loading seasons statistics", Toast.LENGTH_LONG).show();
+                this.finish();
+            }
         }
+    }
+
+    @Override
+    public void finishedLoadingDataWithError(String error) {
+        Toast.makeText(getBaseContext(),"Error loading seasons statistics",Toast.LENGTH_LONG).show();
+        this.finish();
     }
 
     // This class is used to obtain drivers photo from wikipedia link

@@ -28,7 +28,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 /**
  * Created by asiri on 3/14/2016.
  */
-public class InitialLoaderService {
+public class InitialLoaderService{
 
     final OkHttpClient client=new OkHttpClient.Builder()
             .readTimeout(60, TimeUnit.SECONDS)
@@ -182,7 +182,7 @@ public class InitialLoaderService {
                 activity.mDialog.show();
 
                 ExtendedDetailsService ex=new ExtendedDetailsService();
-                ex.loadLeaderboard(activity);
+                ex.loadLeaderboard(activity,activity);
             }
 
             public void checkRealm()

@@ -18,10 +18,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Toast;
 
+import com.asiri.f1companion.Commons.Defaults;
 import com.asiri.f1companion.Models.Race;
 import com.asiri.f1companion.R;
 import com.asiri.f1companion.Services.ExtendedDetailsService;
+import com.asiri.f1companion.Services.Interfaces.LoadDataListener;
 import com.asiri.f1companion.Services.Models.QualifyingResultsModel;
 import com.asiri.f1companion.Services.Models.RaceResultsModel;
 import com.asiri.f1companion.UI.Fragments.DriversFragment;
@@ -38,7 +41,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.realm.Realm;
 
-public class RaceResultActivity extends AppCompatActivity{
+public class RaceResultActivity extends AppCompatActivity implements LoadDataListener{
 
     @Bind(R.id.toolbar)Toolbar toolbar;
     @Bind(R.id.raceResultsTab_layout)TabLayout tabLayout;
@@ -104,34 +107,48 @@ public class RaceResultActivity extends AppCompatActivity{
         return super.onOptionsItemSelected(item);
     }
 
-    public void finishedLoadingRaceResults(RaceResultsModel data)
-    {
-        this.raceResultsData=data;
-        mDialog.setMessage("Loading Qualifying Results");
-        service.getQualifyingResults("current", getIntent().getStringExtra("round"), this);
+    @Override
+    public void finishedLoadingData() {
+
     }
 
-    public void finishedLoadingQualifyingResults(QualifyingResultsModel data)
-    {
-        this.qualifyingResultsData=data;
-        mDialog.dismiss();
+    @Override
+    public void finishedLoadingDataWith(Object object, Defaults.RequestType requestType) {
+        if(requestType==Defaults.RequestType.QualifyingResults)
+        {
+            QualifyingResultsModel data=(QualifyingResultsModel)object;
+            this.qualifyingResultsData=data;
+            mDialog.dismiss();
 
-        tabLayout.setTabTextColors(Color.LTGRAY, Color.WHITE);
+            tabLayout.setTabTextColors(Color.LTGRAY, Color.WHITE);
 
-        if(fragments.size()==0) {
-            RaceResultsFragment tab1 = RaceResultsFragment.newInstance();
-            fragments.add(tab1);
+            if(fragments.size()==0) {
+                RaceResultsFragment tab1 = RaceResultsFragment.newInstance();
+                fragments.add(tab1);
 
-            QualifyingResultsFragment tab2 = QualifyingResultsFragment.newInstance();
-            fragments.add(tab2);
+                QualifyingResultsFragment tab2 = QualifyingResultsFragment.newInstance();
+                fragments.add(tab2);
 
-            adapter = new RaceResultsPagerAdapter(getSupportFragmentManager(), titles, titles.length, fragments);
-            pager.setAdapter(adapter);
-            pager.setPageTransformer(true, new DepthPageTransformer());
-            pager.clearAnimation();
-            pager.setOffscreenPageLimit(2);
-            tabLayout.setupWithViewPager(pager);
+                adapter = new RaceResultsPagerAdapter(getSupportFragmentManager(), titles, titles.length, fragments);
+                pager.setAdapter(adapter);
+                pager.setPageTransformer(true, new DepthPageTransformer());
+                pager.clearAnimation();
+                pager.setOffscreenPageLimit(2);
+                tabLayout.setupWithViewPager(pager);
+            }
         }
+        else if(requestType==Defaults.RequestType.RaceResults)
+        {
+            RaceResultsModel data=(RaceResultsModel)object;
+            this.raceResultsData=data;
+            mDialog.setMessage("Loading Qualifying Results");
+            service.getQualifyingResults("current", getIntent().getStringExtra("round"), this);
+        }
+    }
+
+    @Override
+    public void finishedLoadingDataWithError(String error) {
+        Toast.makeText(this,error,Toast.LENGTH_LONG).show();
     }
 }
 
