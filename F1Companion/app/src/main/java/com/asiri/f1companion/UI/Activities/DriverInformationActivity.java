@@ -127,21 +127,6 @@ public class DriverInformationActivity extends AppCompatActivity implements Load
         service.getAllStatuses(driverId, this);
     }
 
-    public void finishedLoadingAllSeasonsStatistics(AllTimeStatisticsModel model)
-    {
-        if(model!=null) {
-            this.allTimeStatisticsModel = model;
-            System.out.println("All sesasons : " + model.getSeasons().length);
-            mDialog.setMessage("Loading Current Season Data");
-            service.getCurrentSeason(driverId,this);
-        }
-        else
-        {
-            Toast.makeText(getBaseContext(), "Error loading seasons statistics", Toast.LENGTH_LONG).show();
-            this.finish();
-        }
-    }
-
     @Override
     public void finishedLoadingData() {
 
@@ -160,6 +145,7 @@ public class DriverInformationActivity extends AppCompatActivity implements Load
             }
         }else if(requestType==Defaults.RequestType.CurrentSeason)
         {
+            mDialog.dismiss();
             CurrentSeasonModel model=(CurrentSeasonModel)object;
             if(model!=null) {
                 this.currentSeasonModel = model;
@@ -184,6 +170,13 @@ public class DriverInformationActivity extends AppCompatActivity implements Load
                 Toast.makeText(getBaseContext(), "Error loading seasons statistics", Toast.LENGTH_LONG).show();
                 this.finish();
             }
+        }
+        else if(requestType==Defaults.RequestType.AllSeasonsStatistics)
+        {
+            this.allTimeStatisticsModel=(AllTimeStatisticsModel)object;
+            System.out.println("All sesasons : " + allTimeStatisticsModel.getSeasons().length);
+            mDialog.setMessage("Loading Current Season Data");
+            service.getCurrentSeason(driverId,this);
         }
     }
 
